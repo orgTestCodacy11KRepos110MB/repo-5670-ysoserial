@@ -1,5 +1,7 @@
 package org.su18.ysuserial.payloads.util;
 
+import java.io.FileOutputStream;
+
 /**
  * @author su18
  */
@@ -32,6 +34,13 @@ public class Utils {
 		}
 
 		return new String(value);
+	}
+
+	public static void writeClassToFile(String fileName, byte[] classBytes) throws Exception {
+		FileOutputStream fileOutputStream = new FileOutputStream(fileName+".class");
+		fileOutputStream.write(classBytes);
+		fileOutputStream.flush();
+		fileOutputStream.close();
 	}
 
 

@@ -4,7 +4,7 @@
 
 	<groupId>ysuserial</groupId>
 	<artifactId>ysuserial</artifactId>
-	<version>0.4-su18</version>
+	<version>0.5-su18</version>
 	<packaging>jar</packaging>
 
 	<name>ysuserial</name>
@@ -410,6 +410,18 @@
             <version>1.0.3.Final</version>
             <scope>provided</scope>
         </dependency>
+
+		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-websocket</artifactId>
+			<version>9.0.62</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>
