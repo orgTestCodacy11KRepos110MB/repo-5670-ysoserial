@@ -228,9 +228,10 @@ Tomcat Listener NeoReg 流量隧道：
 - `EX-MS-TSMSFromThread-gzraw`：`哥斯拉` RAW 逻辑内存马
 - `EX-MS-TSMSFromThread-cmd`：`CMD` 命令回显内存马
 
-另外还本项目目前支持了 Tocmat WebSocket 命令执行内存马，暂未扩展成多种类型（因为相关工具不支持，需魔改），使用方法例子如下：
+另外还本项目目前支持了 Tocmat WebSocket 以及 Executor 命令执行内存马，暂未扩展成多种类型（因为相关工具不支持，需魔改），使用方法例子如下：
 
 - `EX-MS-TWSMSFromThread` : `CMD` 命令回显 WebSocket 内存马
+- `EX-MS-TEXMSFromThread` : `CMD` 命令回显 Executor 内存马
 
 本工具支持的全部内存马经过测试可用，但实际受到中间件版本的限制，对于内存马的相关测试，可以参考项目 [https://github.com/su18/MemoryShell](https://github.com/su18/MemoryShell)
 
