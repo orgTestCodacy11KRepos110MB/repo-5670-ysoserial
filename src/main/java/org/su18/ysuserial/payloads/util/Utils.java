@@ -1,6 +1,9 @@
 package org.su18.ysuserial.payloads.util;
 
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * @author su18
@@ -37,11 +40,28 @@ public class Utils {
 	}
 
 	public static void writeClassToFile(String fileName, byte[] classBytes) throws Exception {
-		FileOutputStream fileOutputStream = new FileOutputStream(fileName+".class");
+		FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".class");
 		fileOutputStream.write(classBytes);
 		fileOutputStream.flush();
 		fileOutputStream.close();
 	}
 
+
+	public static void loadClassTest(byte[] classBytes, String className) throws Exception {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		Method      method      = Proxy.class.getDeclaredMethod("defineClass0", ClassLoader.class, String.class, byte[].class, int.class, int.class);
+		method.setAccessible(true);
+		Class clazz = (Class) method.invoke(null, classLoader, className, classBytes, 0, classBytes.length);
+
+		try {
+			clazz.newInstance();
+		} catch (Exception ignored) {
+			Class unsafe         = Class.forName("sun.misc.Unsafe");
+			Field theUnsafeField = unsafe.getDeclaredField("theUnsafe");
+			theUnsafeField.setAccessible(true);
+			Object unsafeObject = theUnsafeField.get(null);
+			unsafeObject.getClass().getDeclaredMethod("allocateInstance", Class.class).invoke(unsafeObject, clazz);
+		}
+	}
 
 }

