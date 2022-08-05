@@ -7,6 +7,7 @@ import org.su18.ysuserial.payloads.ObjectPayload;
 import org.su18.ysuserial.payloads.ObjectPayload.Utils;
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
+import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 public class GeneratePayload {
 
@@ -15,7 +16,7 @@ public class GeneratePayload {
 	private static final int USAGE_CODE = 64;
 
 	public static void main(final String[] args) {
-		if (args.length != 2) {
+		if (args.length < 2) {
 			printUsage();
 			System.exit(USAGE_CODE);
 		}
@@ -31,9 +32,15 @@ public class GeneratePayload {
 		}
 
 		try {
-			final ObjectPayload payload = payloadClass.newInstance();
-			final Object        object  = payload.getObject(command);
-			PrintStream         out     = System.out;
+			ObjectPayload payload = payloadClass.newInstance();
+			Object        object  = payload.getObject(command);
+
+			if (args.length >= 3) {
+				final String length = args[2];
+				object = (new DirtyDataWrapper(object, Integer.parseInt(length))).doWrap();
+			}
+
+			PrintStream out = System.out;
 			Serializer.serialize(object, out);
 			ObjectPayload.Utils.releasePayload(payload, object);
 		} catch (Throwable e) {
