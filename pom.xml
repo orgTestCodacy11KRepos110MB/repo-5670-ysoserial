@@ -342,11 +342,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
         </dependency>
@@ -392,6 +387,23 @@
             <artifactId>tomcat-websocket</artifactId>
             <version>9.0.62</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!--  我习惯的做法是将依赖包打在本地仓库，方便引用，依赖包放在 lib 目录下了 -->
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>resin</artifactId>
+            <version>4.0.65</version>
+        </dependency>
+        <dependency>
+            <groupId>jai-codec</groupId>
+            <artifactId>jai-codec</artifactId>
+            <version>0.01</version>
+        </dependency>
+        <dependency>
+            <groupId>jai-core</groupId>
+            <artifactId>jai-core</artifactId>
+            <version>0.01</version>
         </dependency>
     </dependencies>
 
