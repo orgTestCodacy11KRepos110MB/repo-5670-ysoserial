@@ -23,16 +23,12 @@ import java.lang.reflect.Proxy;
 public class TLNeoRegFromThread implements ServletRequestListener {
 
 	static {
-		try {
-			// 获取 standardContext
-			WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
-			StandardContext       standardContext       = (StandardContext) webappClassLoaderBase.getResources().getContext();
+		// 获取 standardContext
+		WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
+		StandardContext       standardContext       = (StandardContext) webappClassLoaderBase.getResources().getContext();
 
-			TLNeoRegFromThread listener = new TLNeoRegFromThread();
-			standardContext.addApplicationEventListener(listener);
-		} catch (Exception e) {
-//            e.printStackTrace();
-		}
+		TLNeoRegFromThread listener = new TLNeoRegFromThread();
+		standardContext.addApplicationEventListener(listener);
 	}
 
 	@Override

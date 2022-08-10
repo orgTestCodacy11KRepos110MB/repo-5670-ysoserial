@@ -58,7 +58,7 @@ public class SpringInterceptorMS {
 		}
 	}
 
-	public static byte[] base64Decode(String bs) throws Exception {
+	public static byte[] base64Decode(String bs) {
 		Class  base64;
 		byte[] value = null;
 		try {

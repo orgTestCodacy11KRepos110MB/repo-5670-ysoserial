@@ -10,6 +10,9 @@ import javax.xml.transform.Templates;
 import java.util.Map;
 
 
+/**
+ * JDK 8+
+ */
 @Dependencies("rome:rome:1.0")
 public class ROME2 implements ObjectPayload<Object> {
 
