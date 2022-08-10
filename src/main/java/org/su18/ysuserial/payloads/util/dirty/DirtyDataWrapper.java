@@ -28,6 +28,12 @@ public class DirtyDataWrapper {
 	 * @return 返回包裹后的反序列化数据
 	 */
 	public Object doWrap() {
+
+		// 如果混淆长度为 0 则不混淆
+		if (dirtyDataSize == 0) {
+			return gadget;
+		}
+
 		Object wrapper = null;
 		// 生成随机字符串
 		String dirtyData = new RandomString((dirtyDataSize), ThreadLocalRandom.current()).getString();
