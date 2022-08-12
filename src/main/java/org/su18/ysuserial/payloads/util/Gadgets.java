@@ -279,6 +279,8 @@ public class Gadgets {
 		// 加载 class 试试
 //		loadClassTest(classBytes, ctClass.getName());
 
+		// 写入前将 classBytes 中的类标识设为 JDK 1.6 的版本号
+		classBytes[7] = 49;
 
 		// inject class bytes into instance
 		Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes, ClassFiles.classAsBytes(CheckCPUTime.class)});
