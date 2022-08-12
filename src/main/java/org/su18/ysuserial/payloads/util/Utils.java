@@ -19,6 +19,24 @@ public class Utils {
 		return new String[]{par1, par2};
 	}
 
+	public static String base64Encode(byte[] bs) throws Exception {
+		Class  base64;
+		String value = null;
+		try {
+			base64 = Class.forName("java.util.Base64");
+			Object Encoder = base64.getMethod("getEncoder", null).invoke(base64, null);
+			value = (String) Encoder.getClass().getMethod("encodeToString", new Class[]{byte[].class}).invoke(Encoder, new Object[]{bs});
+		} catch (Exception e) {
+			try {
+				base64 = Class.forName("sun.misc.BASE64Encoder");
+				Object Encoder = base64.newInstance();
+				value = (String) Encoder.getClass().getMethod("encode", new Class[]{byte[].class}).invoke(Encoder, new Object[]{bs});
+			} catch (Exception e2) {
+			}
+		}
+		return value;
+	}
+
 
 	public static String base64Decode(String bs) throws Exception {
 		Class  base64;
