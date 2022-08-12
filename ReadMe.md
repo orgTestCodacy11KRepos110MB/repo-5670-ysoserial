@@ -213,6 +213,7 @@ Tomcat Listener NeoReg 流量隧道：
 - 命令 `EX-MS-RFMSFromThread-...`：通过线程类加载器获取指定上下文系统内植入 Resin Filter 型内存马
 - 命令 `EX-MS-RSMSFromThread-...`：通过线程类加载器获取指定上下文系统内植入 Resin Servlet 型内存马
 - 命令 `EX-MS-WSFMSFromThread-...`：通过线程类加载器获取指定上下文系统内植入 Websphere Filter 型内存马
+- 命令 `EX-MS-RMIBindTemplate-...`：RMI 型内存马
 
 目前支持的直打内存马的类型包括 Tomcat、Jetty、JBoss/Wildfly、Websphere、Resin、Spring，还有以下几个暂未支持：
 
@@ -233,6 +234,10 @@ Tomcat Listener NeoReg 流量隧道：
 
 - `EX-MS-TWSMSFromThread` : `CMD` 命令回显 WebSocket 内存马
 - `EX-MS-TEXMSFromThread` : `CMD` 命令回显 Executor 内存马
+
+对于一些非常规的环境，本项目还提供了基于 Java 原生的 RMI 内存马及命令回显方式，通过向 RMI 注册中心绑定一个恶意类，可以随时调用执行命令并回显，使用方法例子如下：
+
+- `EX-MS-RMIBindTemplate-1100-0-su18`: `CMD` 命令回显 RMI 内存马
 
 本工具支持的全部内存马经过测试可用，但实际受到中间件版本的限制，对于内存马的相关测试，可以参考项目 [https://github.com/su18/MemoryShell](https://github.com/su18/MemoryShell)
 
@@ -351,7 +356,8 @@ java -jar ysuserial-0.6-su18-all.jar URLDNS 'all:xxxxxx.dns.log'
 
    ![iShot_2022-07-25_20.44.35](images/iShot_2022-07-25_20.44.35.png)
 
-5. 如果是 <font color="orange"> Tomcat Executor </font> 内存马，程序会从 Header 中的 `su18` 中读取待执行的命令，并将执行结果在 Header `Server-token` 进行 Base64encode 回显。
+5. 如果是 <font color="orange"> Tomcat Executor </font> 内存马，程序会从 Header 中的 `su18` 中读取待执行的命令，并将执行结果在 Header `Server-token`
+   进行 Base64encode 回显。
 
    ![iShot_2022-08-04_15.52.15.png](images/iShot_2022-08-04_15.52.15.png)
 
@@ -379,6 +385,12 @@ python neoreg.py -k su18 -u http://xxx.com/ -H 'Referer: https://su18.org/'
 
 ![image-20220618225208015](images/image-20220618225208015.png)
 
+## RMI 内存马
+
+对于 RMIBindTemplate 是在目标服务器上的指定端口启动注册中心（如果没有），并向其中绑定恶意的后门类，配合 `org.su18.ysuserial.exploit.RMIBindExploit` 进行命令执行
+
+![iShot_2022-08-12_18.19.48.png](images/iShot_2022-08-12_18.19.48.png)
+
 # 防御的绕过
 
 这部分不涉及使用方式，只是简单的描述一下项目中所使用的绕过方式供大家了解。
@@ -387,11 +399,13 @@ python neoreg.py -k su18 -u http://xxx.com/ -H 'Referer: https://su18.org/'
 
 对于冰蝎和哥斯拉，他们自己在流量和Java层都有很多可以提取的特征，这里没有办法去管控，需要各位自行去魔改，其实也并不难。本项目把一些大家实现的比较类似的一些特征进行了去除。
 
-在一些情况下，流量层的 WAF 会在对流量数据包解析时对关键字、关键特征进行匹配，例如反序列化流量包中出现的一些关键类的包名、类名，但是流量设备受限于性能影响，不会无限制的解析请求包，可能会影响到实际业务，因此一般会有解析的`时间`上或`长度`上的阈值，超过该阈值，将放弃检查。
+在一些情况下，流量层的 WAF 会在对流量数据包解析时对关键字、关键特征进行匹配，例如反序列化流量包中出现的一些关键类的包名、类名，但是流量设备受限于性能影响，不会无限制的解析请求包，可能会影响到实际业务，因此一般会有解析的`时间`
+上或`长度`上的阈值，超过该阈值，将放弃检查。
 
 因此本项目添加了为反序列化数据添加脏数据用来绕过流量层面的 WAF 的功能，在生成反序列化数据时，在后面指定一个长度，即可生成封装后的带有随机脏字符的反序列化数据包。
 
 例如：
+
 ```shell
 java -jar ysuserial-0.6-su18-all.jar CommonsBeanutils1 'EX-MS-TEXMSFromThread' 50000
 ```

