@@ -13,6 +13,8 @@ public class GeneratePayload {
 
 	public static Boolean IS_SHORT = true;
 
+	public static Boolean IS_INHERIT_ABSTRACT_TRANSLET = false;
+
 	private static final int INTERNAL_ERROR_CODE = 70;
 
 	private static final int USAGE_CODE = 64;

