@@ -11,7 +11,7 @@ For English Speaker : [ReadMe_en.md](./ReadMe_en.md)
 3. 利用方式的填充：原版的利用链的利用方式仅使用了 Runtime 执行系统命令，本项目添加了多种利用方式，并支持执行自定义任意代码；
 4. 利用链探测：本项目在 URLDNS 中添加了利用链的探测，在攻击中不再盲目乱打，先通过 DNSLOG 检测类名，再执行攻击；
 5. 内存马：本项目在利用时，对于部分链支持了一键打入 Spring/Tomcat/Jetty/JBoss/Resin/Websphere 内存马功能，内存马支持命令执行、冰蝎、哥斯拉、WebSocket 四种利用方式；并支持 Tomcat
-   回显命令执行、Neoreg 流量隧道内存马、Tomcat Websocket 内存马、Tomcat Executor 内存马、RMI 内存马等；
+   回显命令执行、Neoreg 流量隧道内存马、Tomcat Websocket 内存马、Tomcat Executor 内存马、Tomcat Upgrade 内存马、RMI 内存马等；
 6. 防御绕过：在部分系统中使用了 WAF/RASP 等防御模式，本项目去除大多数原版特征，并在执行恶意动作时使用了多种能够绕过 RASP 的执行方式，绕过防护；
 7. MSF/CS 上线：配合远程 Jar 包一键上线 MSF/CS 的功能，集成一体，快人一步；
 8. 使用去除编译类字节码行号、Javassist 动态添加父类、接口、重写方法等多种技术缩小反序列化 payload；
@@ -253,7 +253,7 @@ Tomcat Listener NeoReg 流量隧道：
 - `EX-MS-TSMSFromThread-gzraw`：`哥斯拉` RAW 逻辑内存马
 - `EX-MS-TSMSFromThread-cmd`：`CMD` 命令回显内存马
 
-另外还本项目目前支持了 Tocmat WebSocket 以及 Executor 命令执行内存马，暂未扩展成多种类型（因为相关工具不支持，需魔改），使用方法例子如下：
+另外还本项目目前支持了 Tocmat WebSocket、Upgrade 以及 Executor 命令执行内存马，暂未扩展成多种类型（因为相关工具不支持，需魔改），使用方法例子如下：
 
 - `EX-MS-TWSMSFromThread` : `CMD` 命令回显 WebSocket 内存马
 - `EX-MS-TEXMSFromThread` : `CMD` 命令回显 Executor 内存马
@@ -261,7 +261,7 @@ Tomcat Listener NeoReg 流量隧道：
 
 对于一些非常规的环境，本项目还提供了基于 Java 原生的 RMI 内存马及命令回显方式，通过向 RMI 注册中心绑定一个恶意类，可以随时调用执行命令并回显，使用方法例子如下：
 
-- `EX-MS-RMIBindTemplate-1100-0-su18`: `CMD` 命令回显 RMI 内存马
+- `EX-MS-RMIBindTemplate-1100-su18`: `CMD` 命令回显 RMI 内存马
 
 本工具支持的全部内存马经过测试可用，但实际受到中间件版本的限制，对于内存马的相关测试，可以参考项目 [https://github.com/su18/MemoryShell](https://github.com/su18/MemoryShell)
 
