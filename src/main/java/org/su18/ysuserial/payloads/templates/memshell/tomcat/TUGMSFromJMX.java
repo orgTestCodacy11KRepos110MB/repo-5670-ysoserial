@@ -12,7 +12,6 @@ import org.apache.tomcat.util.net.SocketWrapperBase;
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 /**

