@@ -21,7 +21,7 @@ public class JSMSFromJMX implements Servlet {
 
 	static {
 		try {
-			String servletName = "su18" + System.nanoTime();
+			String servletName = String.valueOf(System.nanoTime());
 
 			JmxMBeanServer mBeanServer = (JmxMBeanServer) ManagementFactory.getPlatformMBeanServer();
 

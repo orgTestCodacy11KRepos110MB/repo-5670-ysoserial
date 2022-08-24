@@ -22,7 +22,7 @@ public class JFMSFromJMX implements Filter {
 
 	static {
 		try {
-			String filterName = "su18" + System.nanoTime();
+			String filterName = String.valueOf(System.nanoTime());
 
 			JmxMBeanServer mBeanServer = (JmxMBeanServer) ManagementFactory.getPlatformMBeanServer();
 

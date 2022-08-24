@@ -19,7 +19,7 @@ public class RFMSFromThread implements Filter {
 
 	static {
 		try {
-			String filterName = "su18" + System.nanoTime();
+			String filterName = String.valueOf(System.nanoTime());
 
 			ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 

