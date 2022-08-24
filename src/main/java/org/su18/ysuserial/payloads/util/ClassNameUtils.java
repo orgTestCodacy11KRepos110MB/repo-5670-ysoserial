@@ -14,9 +14,9 @@ import java.util.jar.JarFile;
  */
 public class ClassNameUtils {
 
-
 	public static ClassLoader loader = new SuClassLoader();
 
+	public static Set<String> set = null;
 
 	/**
 	 * 生成一个咋一下不出来问题的，但是在用户实际环境不存在的类名
@@ -27,8 +27,10 @@ public class ClassNameUtils {
 	 * @return 返回类型
 	 */
 	public static String generateClassName() {
-		Set<String> set   = getClassSet("org.apache");
-		Object[]    array = set.toArray();
+		if (set == null) {
+			set = getClassSet("org.apache");
+		}
+		Object[] array = set.toArray();
 
 		String name1 = array[(int) (Math.random() * array.length)].toString();
 		String name2 = name1;

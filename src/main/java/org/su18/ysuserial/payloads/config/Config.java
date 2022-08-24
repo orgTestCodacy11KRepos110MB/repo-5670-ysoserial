@@ -16,6 +16,9 @@ public class Config {
 	// 恶意类是否继承 AbstractTranslet
 	public static Boolean IS_INHERIT_ABSTRACT_TRANSLET = false;
 
+	// 各种方式的内存马映射的路径
+	public static String URL_PATTERN = "/su18";
+
 
 	// 不同类型内存马的父类/接口与其关键参数的映射
 	public static HashMap<String, String> KEY_METHOD_MAP = new HashMap<>();

