@@ -6,17 +6,19 @@ import java.util.*;
 import org.apache.commons.cli.*;
 import org.su18.ysuserial.payloads.ObjectPayload;
 import org.su18.ysuserial.payloads.ObjectPayload.Utils;
+
+import static org.su18.ysuserial.payloads.config.Config.IS_INHERIT_ABSTRACT_TRANSLET;
+import static org.su18.ysuserial.payloads.config.Config.IS_OBSCURE;
+
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
+import org.su18.ysuserial.payloads.config.Config;
 import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 public class GeneratePayload {
 
-	public static Boolean IS_OBSCURE = false;
-
 	public static CommandLine cmdLine;
 
-	public static Boolean IS_INHERIT_ABSTRACT_TRANSLET = false;
 
 	private static final int INTERNAL_ERROR_CODE = 70;
 
@@ -64,6 +66,9 @@ public class GeneratePayload {
 			System.exit(USAGE_CODE);
 			return;
 		}
+
+		// 初始化全局配置
+		Config.init();
 
 		try {
 			ObjectPayload payload = payloadClass.newInstance();

