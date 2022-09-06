@@ -87,7 +87,7 @@ public class DirtyDataWrapper {
 			case 2:
 				List<Object> linkedList = new LinkedList<Object>();
 				for (int i = 0; i < dirtyDataSize; i++) {
-					linkedList.add(makeClass(generateClassName()));
+					linkedList.add(makeClass("A" + System.nanoTime()));
 				}
 				linkedList.add(gadget);
 				wrapper = linkedList;
