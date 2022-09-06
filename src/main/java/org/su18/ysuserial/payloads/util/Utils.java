@@ -1,5 +1,9 @@
 package org.su18.ysuserial.payloads.util;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,6 +13,19 @@ import java.lang.reflect.Proxy;
  * @author su18
  */
 public class Utils {
+
+	public static Class makeClass(String clazzName) {
+		ClassPool classPool = ClassPool.getDefault();
+		CtClass   ctClass   = classPool.makeClass(clazzName);
+		Class     clazz     = null;
+		try {
+			clazz = ctClass.toClass();
+		} catch (CannotCompileException e) {
+			throw new RuntimeException(e);
+		}
+		ctClass.defrost();
+		return clazz;
+	}
 
 
 	public static String[] handlerCommand(String command) {

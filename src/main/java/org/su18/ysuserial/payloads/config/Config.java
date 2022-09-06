@@ -16,6 +16,14 @@ public class Config {
 	// 恶意类是否继承 AbstractTranslet
 	public static Boolean IS_INHERIT_ABSTRACT_TRANSLET = false;
 
+
+	// 是否在序列化数据流中的 TC_RESET 中填充脏数据
+	public static Boolean IS_DIRTY_IN_TC_RESET = false;
+
+	// 填充的脏数据长度
+	public static int DIRTY_LENGTH_IN_TC_RESET = 0;
+
+
 	// 各种方式的内存马映射的路径
 	public static String URL_PATTERN = "/su18";
 
