@@ -27,6 +27,11 @@ public class Config {
 	// 填充的脏数据长度
 	public static int DIRTY_LENGTH_IN_TC_RESET = 0;
 
+	// 是否使用落地文件的方式隐藏内存马
+	public static Boolean HIDE_MEMORY_SHELL = false;
+
+	// 落地文件姿势，1 charsets.jar 2 classes
+	public static int HIDE_MEMORY_SHELL_TYPE = 0;
 
 	// 各种方式的内存马映射的路径
 	public static String URL_PATTERN = "/su18";

