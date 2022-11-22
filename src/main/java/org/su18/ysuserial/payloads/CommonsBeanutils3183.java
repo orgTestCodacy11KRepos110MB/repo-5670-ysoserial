@@ -22,8 +22,6 @@ public class CommonsBeanutils3183 implements ObjectPayload<Object> {
 		String jndiURL = null;
 		if (command.toLowerCase().startsWith("jndi:")) {
 			jndiURL = command.substring(5);
-		} else {
-			throw new Exception("Command format is: [rmi|ldap]://host:port/obj");
 		}
 
 		ClassPool pool = ClassPool.getDefault();
