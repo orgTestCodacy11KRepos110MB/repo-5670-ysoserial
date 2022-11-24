@@ -14,7 +14,7 @@ import java.rmi.server.UnicastRemoteObject;
  * <p>
  * 目前的实现方式存在被反制的风险，慎用哦
  * <p>
- * java -jar ysoserial-0.9-su18-all.jar CommonsBeanutils1 "EX-MS-RMIBindTemplate-1100-0-su18"
+ * java -jar ysoserial-<version>-su18-all.jar CommonsBeanutils1 "EX-MS-RMIBindTemplate-1100-0-su18"
  *
  * @author su18
  */
