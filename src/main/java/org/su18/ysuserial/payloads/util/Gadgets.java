@@ -300,6 +300,8 @@ public class Gadgets {
 //				writeClassToFile(cName, bytes);
 //				loadClassTest(bytes, cName);
 
+
+				ctClass.setName(newClassName);
 				classBytes = ctClass.toBytecode();
 			}
 		}
