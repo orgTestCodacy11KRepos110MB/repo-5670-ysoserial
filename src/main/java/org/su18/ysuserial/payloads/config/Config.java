@@ -58,6 +58,8 @@ public class Config {
 		KEY_METHOD_MAP.put("org.apache.coyote.UpgradeProtocol", "accept");
 		// Tomcat Executor 型内存马，关键方法 execute
 		KEY_METHOD_MAP.put("org.apache.tomcat.util.threads.ThreadPoolExecutor", "execute");
+		// Spring Interceptor 型内存马，关键方法 preHandle
+		KEY_METHOD_MAP.put("org.springframework.web.servlet.handler.HandlerInterceptorAdapter", "preHandle");
 	}
 
 
