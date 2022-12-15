@@ -15,7 +15,7 @@ import static org.su18.ysuserial.payloads.util.Reflections.setFieldValue;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 @Dependencies({"commons-beanutils:commons-beanutils:1.8.3", "commons-logging:commons-logging:1.2"})
-public class CommonsBeanutils2NOCC implements ObjectPayload<Object> {
+public class CommonsBeanutils2183NOCC implements ObjectPayload<Object> {
 
 	@Override
 	public Object getObject(String command) throws Exception {
