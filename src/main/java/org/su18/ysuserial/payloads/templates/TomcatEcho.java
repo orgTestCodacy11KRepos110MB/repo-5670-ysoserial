@@ -63,7 +63,6 @@ public class TomcatEcho {
 								resp.getClass().getMethod("doWrite", new Class[]{cls}).invoke(resp, obj);
 							}
 							flag = true;
-							flag = true;
 						}
 						if (flag) break;
 					}
