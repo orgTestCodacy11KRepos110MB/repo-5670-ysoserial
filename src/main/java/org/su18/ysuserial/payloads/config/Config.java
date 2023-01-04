@@ -39,7 +39,14 @@ public class Config {
 	// 内存马的密码
 	public static String PASSWORD = "0f359740bd1cda99";
 
+	// Referer 校验
 	public static String REFERER = "https://su18.org/";
+
+	// 是否生成内存马文件
+	public static Boolean GEN_MEM_SHELL = false;
+
+	// 内存马文件名
+	public static String GEN_MEM_SHELL_FILENAME = "";
 
 	// 不同类型内存马的父类/接口与其关键参数的映射
 	public static HashMap<String, String> KEY_METHOD_MAP = new HashMap<>();

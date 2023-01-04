@@ -6,6 +6,7 @@ import static org.su18.ysuserial.payloads.config.Config.*;
 import static org.su18.ysuserial.payloads.templates.MemShellPayloads.*;
 import static org.su18.ysuserial.payloads.util.ClassNameUtils.generateClassName;
 import static org.su18.ysuserial.payloads.util.Utils.base64Decode;
+import static org.su18.ysuserial.payloads.util.Utils.writeClassToFile;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.*;
@@ -305,9 +306,14 @@ public class Gadgets {
 			}
 		}
 
-
-		// 写出 class 试试
-//		writeClassToFile(ctClass.getName(), classBytes);
+		// 保存内存马文件
+		if (GEN_MEM_SHELL) {
+			if (!Objects.equals(GEN_MEM_SHELL_FILENAME, "")) {
+				writeClassToFile(GEN_MEM_SHELL_FILENAME, classBytes);
+			} else {
+				writeClassToFile(ctClass.getName() + ".class", classBytes);
+			}
+		}
 
 		// 加载 class 试试
 //		loadClassTest(classBytes, ctClass.getName());

@@ -75,7 +75,7 @@ public class Utils {
 	}
 
 	public static void writeClassToFile(String fileName, byte[] classBytes) throws Exception {
-		FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".class");
+		FileOutputStream fileOutputStream = new FileOutputStream(fileName);
 		fileOutputStream.write(classBytes);
 		fileOutputStream.flush();
 		fileOutputStream.close();
