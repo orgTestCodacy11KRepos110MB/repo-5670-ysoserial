@@ -54,26 +54,25 @@ public class SignedObject implements ObjectPayload<Object> {
 			throw new IllegalArgumentException("Command format is: <Type>:<Original_Type>:<Command_Base64>:<Dirty_Type>:<Dirty_Length>");
 		}
 
-		String type   = commands[0];
+		String type   = commands[0].toLowerCase();
 		Object object = getOriginal(Arrays.copyOfRange(commands, 1, commands.length));
 
-		switch (type.toLowerCase()) {
-			case "cb":
-				return getSignedObjectWithCB(object);
-			case "hibernate":
-				return getSignedObjectWithHibernate(object);
-			case "rome":
-				return getSignedObjectWithRome(object);
-			case "rhino":
-				return getSignedObjectWithRhino(object);
-			case "spring":
-				return getSignedObjectWithSpring(object);
-			case "cc4":
-				return getSignedObjectWithCC4(object);
-			case "cc":
-			default:
-				return getSignedObjectWithCCNoArray(object);
+		if ("cb".equals(type)) {
+			return getSignedObjectWithCB(object);
+		} else if ("hibernate".equals(type)) {
+			return getSignedObjectWithHibernate(object);
+		} else if ("rome".equals(type)) {
+			return getSignedObjectWithRome(object);
+		} else if ("rhino".equals(type)) {
+			return getSignedObjectWithRhino(object);
+		} else if ("spring".equals(type)) {
+			return getSignedObjectWithSpring(object);
+		} else if ("cc4".equals(type)) {
+			return getSignedObjectWithCC4(object);
+		} else {
+			return getSignedObjectWithCCNoArray(object);
 		}
+
 	}
 
 

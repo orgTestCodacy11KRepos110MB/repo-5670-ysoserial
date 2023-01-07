@@ -49,7 +49,7 @@ public class Config {
 	public static String GEN_MEM_SHELL_FILENAME = "";
 
 	// 不同类型内存马的父类/接口与其关键参数的映射
-	public static HashMap<String, String> KEY_METHOD_MAP = new HashMap<>();
+	public static HashMap<String, String> KEY_METHOD_MAP = new HashMap<String, String>();
 
 
 	public static void init() {

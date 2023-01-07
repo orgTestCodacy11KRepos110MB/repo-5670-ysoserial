@@ -58,7 +58,7 @@ public class ClassNameUtils {
 	}
 
 	public static Set<String> getClassSet(String packageName) {
-		Set<String> classSet = new HashSet<>();
+		Set<String> classSet = new HashSet<String>();
 		try {
 			Enumeration<URL> urls = loader.getResources(packageName.replace(".", "/"));
 			while (urls.hasMoreElements()) {
