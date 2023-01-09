@@ -1,7 +1,6 @@
 package org.su18.ysuserial.payloads.util.dirty;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.su18.ysuserial.payloads.config.Config.DIRTY_LENGTH_IN_TC_RESET;
 import static org.su18.ysuserial.payloads.config.Config.IS_DIRTY_IN_TC_RESET;
@@ -42,9 +41,9 @@ public class DirtyDataWrapper {
 			// by c0ny1
 			case 1:
 				// 生成随机字符串
-				String dirtyData = new RandomString((dirtyDataSize), ThreadLocalRandom.current()).getString();
-				String randStr1 = new RandomString((int) (Math.random() * 10) % 10 + 1, ThreadLocalRandom.current()).getString();
-				String randStr2 = new RandomString((int) (Math.random() * 10) % 10 + 1, ThreadLocalRandom.current()).getString();
+				String dirtyData = new RandomString((dirtyDataSize), new Random()).getString();
+				String randStr1 = new RandomString((int) (Math.random() * 10) % 10 + 1, new Random()).getString();
+				String randStr2 = new RandomString((int) (Math.random() * 10) % 10 + 1, new Random()).getString();
 				// 随机选择封装对象
 				int type = (int) (Math.random() * 10) % 10 + 1;
 				switch (type) {
