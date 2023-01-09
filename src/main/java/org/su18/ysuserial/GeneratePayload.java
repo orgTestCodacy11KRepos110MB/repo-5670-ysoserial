@@ -112,8 +112,6 @@ public class GeneratePayload {
 			return;
 		}
 
-		// 初始化全局配置
-		Config.init();
 
 		try {
 			ObjectPayload payload = payloadClass.newInstance();

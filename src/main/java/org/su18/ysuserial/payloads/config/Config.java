@@ -52,7 +52,7 @@ public class Config {
 	public static HashMap<String, String> KEY_METHOD_MAP = new HashMap<String, String>();
 
 
-	public static void init() {
+	static {
 		// Servlet 型内存马，关键方法 service
 		KEY_METHOD_MAP.put("javax.servlet.Servlet", "service");
 		// Filter 型内存马，关键方法 doFilter
