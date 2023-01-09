@@ -24,6 +24,9 @@ public class Config {
 	// jboss
 	public static Boolean IS_JBOSS_OBJECT_INPUT_STREAM = false;
 
+	// EncryptedTranscoder
+	public static Boolean IS_ENCRYPTED_TRANSCODER = false;
+
 	// 填充的脏数据长度
 	public static int DIRTY_LENGTH_IN_TC_RESET = 0;
 

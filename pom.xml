@@ -84,6 +84,11 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.jasig</groupId>
+            <artifactId>spring-webflow-client-repo</artifactId>
+            <version>1.0.2</version>
+        </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>

@@ -41,6 +41,7 @@ public class GeneratePayload {
 		options.addOption("h", "hide-mem-shell", false, "Hide memory shell from detection tools by writing file to $JAVA_HOME,only support SpringControllerMS currently");
 		options.addOption("ht", "hide-type", true, "Hide memory shell,type 1:write /jre/lib/charsets.jar 2:write /jre/classes/");
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
+		options.addOption("et", "encrypted-transcoder", false, "Encode By EncryptedTranscoder");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -67,6 +68,10 @@ public class GeneratePayload {
 
 		if (cmdLine.hasOption("jboss")) {
 			IS_JBOSS_OBJECT_INPUT_STREAM = true;
+		}
+
+		if (cmdLine.hasOption("encrypted-transcoder")) {
+			IS_ENCRYPTED_TRANSCODER = true;
 		}
 
 		if (cmdLine.hasOption("url")) {
