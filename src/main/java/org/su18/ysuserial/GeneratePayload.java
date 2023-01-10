@@ -42,6 +42,7 @@ public class GeneratePayload {
 		options.addOption("ht", "hide-type", true, "Hide memory shell,type 1:write /jre/lib/charsets.jar 2:write /jre/classes/");
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
 		options.addOption("et", "encrypted-transcoder", false, "Encode By EncryptedTranscoder");
+		options.addOption("ncs", "no-com-sun", false, "Force Using org.apache.XXX.TemplatesImpl instead of com.sun.org.apache.XXX.TemplatesImpl");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -88,6 +89,10 @@ public class GeneratePayload {
 
 		if (cmdLine.hasOption("referer")) {
 			REFERER = cmdLine.getOptionValue("referer");
+		}
+
+		if (cmdLine.hasOption("no-com-sun")) {
+			FORCE_USING_ORG_APACHE_TEMPLATESIMPL = true;
 		}
 
 		if (cmdLine.hasOption("gen-mem-shell")) {

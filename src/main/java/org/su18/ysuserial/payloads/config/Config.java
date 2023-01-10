@@ -36,6 +36,9 @@ public class Config {
 	// 落地文件姿势，1 charsets.jar 2 classes
 	public static int HIDE_MEMORY_SHELL_TYPE = 0;
 
+	// 是否强制使用 org.apache.XXX.TemplatesImpl
+	public static Boolean FORCE_USING_ORG_APACHE_TEMPLATESIMPL = false;
+
 	// 各种方式的内存马映射的路径
 	public static String URL_PATTERN = "/version.txt";
 

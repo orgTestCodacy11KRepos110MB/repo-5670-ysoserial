@@ -79,7 +79,7 @@ public class Gadgets {
 		Class    transFactory;
 
 		// 兼容不同 JDK 版本
-		if (Boolean.parseBoolean(System.getProperty("properXalan", "false"))) {
+		if (Boolean.parseBoolean(System.getProperty("properXalan", "false")) || FORCE_USING_ORG_APACHE_TEMPLATESIMPL) {
 			tplClass = Class.forName("org.apache.xalan.xsltc.trax.TemplatesImpl");
 			abstTranslet = Class.forName("org.apache.xalan.xsltc.runtime.AbstractTranslet");
 			transFactory = Class.forName("org.apache.xalan.xsltc.trax.TransformerFactoryImpl");
