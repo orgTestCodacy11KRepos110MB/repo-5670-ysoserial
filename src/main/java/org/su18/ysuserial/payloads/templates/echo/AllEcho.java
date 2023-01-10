@@ -1,8 +1,6 @@
-package org.su18.ysuserial.payloads.templates;
+package org.su18.ysuserial.payloads.templates.echo;
 
 /**
- * 来自 ShiroAttack2
- *
  * @author su18
  */
 public class AllEcho {

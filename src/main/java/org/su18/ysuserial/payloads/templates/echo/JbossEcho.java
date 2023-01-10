@@ -1,4 +1,4 @@
-package org.su18.ysuserial.payloads.templates;
+package org.su18.ysuserial.payloads.templates.echo;
 
 
 /**
