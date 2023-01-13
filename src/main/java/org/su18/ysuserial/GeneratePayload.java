@@ -43,6 +43,7 @@ public class GeneratePayload {
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
 		options.addOption("et", "encrypted-transcoder", false, "Encode By EncryptedTranscoder");
 		options.addOption("ncs", "no-com-sun", false, "Force Using org.apache.XXX.TemplatesImpl instead of com.sun.org.apache.XXX.TemplatesImpl");
+		options.addOption("dcfp", "define-class-from-parameter", true, "Customize parameter name when using DefineClassFromParameter");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -81,6 +82,10 @@ public class GeneratePayload {
 				url = "/" + url;
 			}
 			URL_PATTERN = url;
+		}
+
+		if (cmdLine.hasOption("define-class-from-parameter")) {
+			PARAMETER = cmdLine.getOptionValue("define-class-from-parameter");
 		}
 
 		if (cmdLine.hasOption("password")) {

