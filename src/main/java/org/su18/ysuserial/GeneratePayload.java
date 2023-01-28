@@ -43,6 +43,7 @@ public class GeneratePayload {
 		options.addOption("j", "jboss", false, "Using JBoss ObjectInputStream/ObjectOutputStream");
 		options.addOption("et", "encrypted-transcoder", false, "Encode By EncryptedTranscoder");
 		options.addOption("ncs", "no-com-sun", false, "Force Using org.apache.XXX.TemplatesImpl instead of com.sun.org.apache.XXX.TemplatesImpl");
+		options.addOption("mcl", "mozilla-class-loader", false, "Using org.mozilla.javascript.DefiningClassLoader in TransformerUtil");
 		options.addOption("dcfp", "define-class-from-parameter", true, "Customize parameter name when using DefineClassFromParameter");
 
 		CommandLineParser parser = new DefaultParser();
@@ -98,6 +99,10 @@ public class GeneratePayload {
 
 		if (cmdLine.hasOption("no-com-sun")) {
 			FORCE_USING_ORG_APACHE_TEMPLATESIMPL = true;
+		}
+
+		if (cmdLine.hasOption("mozilla-class-loader")) {
+			USING_MOZILLA_DEFININGCLASSLOADER = true;
 		}
 
 		if (cmdLine.hasOption("gen-mem-shell")) {

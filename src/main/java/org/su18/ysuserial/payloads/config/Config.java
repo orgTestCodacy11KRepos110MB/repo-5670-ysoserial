@@ -39,6 +39,9 @@ public class Config {
 	// 是否强制使用 org.apache.XXX.TemplatesImpl
 	public static Boolean FORCE_USING_ORG_APACHE_TEMPLATESIMPL = false;
 
+	// 在 Transformer[] 中使用 org.mozilla.javascript.DefiningClassLoader
+	public static Boolean USING_MOZILLA_DEFININGCLASSLOADER = false;
+
 	// 各种方式的内存马映射的路径
 	public static String URL_PATTERN = "/version.txt";
 
