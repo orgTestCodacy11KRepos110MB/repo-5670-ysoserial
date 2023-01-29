@@ -48,6 +48,11 @@ public class Config {
 	// DefineClassFromParameter 的路径
 	public static String PARAMETER = "dc";
 
+	// 将输入直接写在文件里
+	public static String FILE = "out.ser";
+
+	public static Boolean WRITE_FILE = false;
+
 	// 内存马的密码
 	public static String PASSWORD = "0f359740bd1cda99";
 

