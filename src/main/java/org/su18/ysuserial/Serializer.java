@@ -4,6 +4,7 @@ import org.jasig.spring.webflow.plugin.EncryptedTranscoder;
 import org.jboss.serial.io.JBossObjectOutputStream;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -48,6 +49,10 @@ public class Serializer implements Callable<byte[]> {
 		}
 
 		objOut.writeObject(obj);
+
+		if (FINE_REPORT_BYPASS) {
+			objOut.writeObject(new HashMap());
+		}
 	}
 
 	public static class SuObjectOutputStream extends ObjectOutputStream {

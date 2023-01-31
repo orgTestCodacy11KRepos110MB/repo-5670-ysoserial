@@ -42,6 +42,8 @@ public class Config {
 	// 在 Transformer[] 中使用 org.mozilla.javascript.DefiningClassLoader
 	public static Boolean USING_MOZILLA_DEFININGCLASSLOADER = false;
 
+	public static Boolean FINE_REPORT_BYPASS = false;
+
 	// 各种方式的内存马映射的路径
 	public static String URL_PATTERN = "/version.txt";
 
